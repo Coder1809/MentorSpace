@@ -36,7 +36,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
+:root, .light {
   --radius: 0.75rem;
   --background: #FAFBF8;
   --foreground: #1F2937;
@@ -81,11 +81,11 @@
   }
 }
 
-/* Light Sage Green Design System Utilities */
+/* Light Sage Green Design Utilities */
 .sage-card {
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px -2px rgba(31, 41, 55, 0.04);
 }
 
 .sage-card-hover {
@@ -93,21 +93,27 @@
 }
 
 .sage-card-hover:hover {
-  transform: translateY(-2px);
-  border-color: #4CAF7D;
-  box-shadow: 0 8px 24px rgba(76, 175, 125, 0.12);
+  transform: translateY(-3px);
+  border-color: rgba(76, 175, 125, 0.5);
+  box-shadow: 0 12px 24px -4px rgba(76, 175, 125, 0.15);
+}
+
+.gradient-text-sage {
+  background: linear-gradient(135deg, #2E7D52 0%, #4CAF7D 50%, #10B981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .btn-sage {
   background: #4CAF7D;
   color: #FFFFFF;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(76, 175, 125, 0.35);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(76, 175, 125, 0.3);
 }
 
 .btn-sage:hover {
-  background: #3d9a6c;
-  box-shadow: 0 6px 20px rgba(76, 175, 125, 0.45);
+  background: #3F996A;
+  box-shadow: 0 6px 18px rgba(76, 175, 125, 0.45);
   transform: translateY(-1px);
 }
 
@@ -118,41 +124,28 @@
 }
 
 .btn-mint:hover {
-  background: #c8ecd8;
+  background: #C7EDD9;
 }
 
 .badge-mint {
   background: #DDF4E7;
-  border: 1px solid rgba(76, 175, 125, 0.25);
-  color: #2d6a4f;
+  border: 1px solid #B3E6C9;
+  color: #2E7D52;
 }
 
 .badge-gold {
   background: #FEF3C7;
-  border: 1px solid rgba(244, 201, 93, 0.4);
-  color: #92400e;
+  border: 1px solid #FCD34D;
+  color: #92400E;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #4CAF7D 0%, #3d9a6c 50%, #2d6a4f 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.tech-pill {
+  background: rgba(76, 175, 125, 0.08);
+  border: 1px solid rgba(76, 175, 125, 0.25);
+  color: #2E7D52;
 }
 
-.tech-tag {
-  background: #DDF4E7;
-  border: 1px solid rgba(76, 175, 125, 0.3);
-  color: #2d6a4f;
-}
-
-/* Legacy aliases — map old class names to sage system */
-.glass-card { @apply sage-card; }
-.glass-card-hover { @apply sage-card-hover; }
-.btn-gradient { @apply btn-sage; }
-.badge-glowing { @apply badge-mint; }
-
-/* Light scrollbar */
+/* Custom Light Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -169,23 +162,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4CAF7D;
-}
-
-@keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
 }

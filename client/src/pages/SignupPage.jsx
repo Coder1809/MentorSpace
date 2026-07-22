@@ -9,7 +9,7 @@ import { api } from "@/utils/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, GraduationCap, ArrowLeft, UserCheck } from "lucide-react";
+import { Loader2, GraduationCap, ArrowLeft } from "lucide-react";
 
 import {
   Form,
@@ -62,7 +62,7 @@ export default function SignupPage() {
           err.response?.data?.errors?.[0] ||
           err.message ||
           "Registration Failed",
-        { theme: "dark" }
+        { theme: "light" }
       );
     }
   };
@@ -88,10 +88,10 @@ export default function SignupPage() {
   if (verify) return null;
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 bg-[#090d16] text-slate-100 selection:bg-indigo-500">
+    <div className="relative min-h-screen flex items-center justify-center p-6 bg-[#FAFBF8] text-[#1F2937] selection:bg-[#4CAF7D]">
       <div className="absolute top-6 left-6 z-50">
         <Link to="/">
-          <Button variant="ghost" size="sm" className="gap-2 text-slate-300 hover:text-white hover:bg-white/5 font-semibold">
+          <Button variant="ghost" size="sm" className="gap-2 text-gray-600 hover:text-[#1F2937] hover:bg-[#DDF4E7]/40 font-semibold">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Button>
@@ -99,30 +99,30 @@ export default function SignupPage() {
       </div>
 
       <div className="w-full max-w-lg relative z-10 my-8">
-        <Card className="glass-card border border-white/10 rounded-3xl p-8 shadow-2xl space-y-6">
+        <Card className="sage-card border border-[#E5E7EB] rounded-3xl p-8 shadow-xl space-y-6 bg-white">
           <CardContent className="p-0 space-y-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <div className="w-14 h-14 bg-[#4CAF7D] rounded-2xl flex items-center justify-center shadow-md shadow-[#4CAF7D]/20">
                 <GraduationCap className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-3xl font-extrabold text-white">Create Account</h1>
-              <p className="text-sm text-slate-400">Join MentorSpace as a Student or Tech Mentor</p>
+              <h1 className="text-3xl font-extrabold text-[#1F2937]">Create Account</h1>
+              <p className="text-sm text-gray-600">Join MentorSpace as a Student or Tech Mentor</p>
             </div>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {/* Role Selector Tabs */}
                 <div className="space-y-2">
-                  <FormLabel className="text-slate-300 font-semibold">Select Account Role</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-900/80 rounded-2xl border border-white/10">
+                  <FormLabel className="text-gray-700 font-semibold">Select Account Role</FormLabel>
+                  <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#FAFBF8] rounded-2xl border border-[#E5E7EB]">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={() => form.setValue("role", "student")}
                       className={`rounded-xl font-bold py-2.5 ${
                         selectedRole === "student"
-                          ? "bg-indigo-600 text-white shadow-md"
-                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                          ? "bg-[#4CAF7D] text-white shadow-md"
+                          : "text-gray-600 hover:text-[#1F2937] hover:bg-[#DDF4E7]/40"
                       }`}
                     >
                       🎓 Student
@@ -133,8 +133,8 @@ export default function SignupPage() {
                       onClick={() => form.setValue("role", "mentor")}
                       className={`rounded-xl font-bold py-2.5 ${
                         selectedRole === "mentor"
-                          ? "bg-purple-600 text-white shadow-md"
-                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                          ? "bg-[#2e7d52] text-white shadow-md"
+                          : "text-gray-600 hover:text-[#1F2937] hover:bg-[#DDF4E7]/40"
                       }`}
                     >
                       ⚡ Tech Mentor
@@ -147,11 +147,11 @@ export default function SignupPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-300 font-semibold">Full Name</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">Full Name</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Alex Morgan"
-                          className="bg-slate-900/60 border-white/10 text-white rounded-xl h-11 focus:border-indigo-500"
+                          className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-11 focus:border-[#4CAF7D]"
                           {...field}
                         />
                       </FormControl>
@@ -165,12 +165,12 @@ export default function SignupPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-300 font-semibold">Email Address</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">Email Address</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="alex@example.com"
-                          className="bg-slate-900/60 border-white/10 text-white rounded-xl h-11 focus:border-indigo-500"
+                          className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-11 focus:border-[#4CAF7D]"
                           {...field}
                         />
                       </FormControl>
@@ -185,12 +185,12 @@ export default function SignupPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-300 font-semibold">Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-semibold">Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
                             placeholder="••••••••"
-                            className="bg-slate-900/60 border-white/10 text-white rounded-xl h-11 focus:border-indigo-500"
+                            className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-11 focus:border-[#4CAF7D]"
                             {...field}
                           />
                         </FormControl>
@@ -204,12 +204,12 @@ export default function SignupPage() {
                     name="cnfpass"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-300 font-semibold">Confirm Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-semibold">Confirm Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
                             placeholder="••••••••"
-                            className="bg-slate-900/60 border-white/10 text-white rounded-xl h-11 focus:border-indigo-500"
+                            className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-11 focus:border-[#4CAF7D]"
                             {...field}
                           />
                         </FormControl>
@@ -221,7 +221,7 @@ export default function SignupPage() {
 
                 <Button
                   type="submit"
-                  className="w-full btn-gradient font-bold h-12 rounded-xl text-base mt-2"
+                  className="w-full btn-sage font-bold h-12 rounded-xl text-base mt-2"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? (
@@ -234,9 +234,9 @@ export default function SignupPage() {
                   )}
                 </Button>
 
-                <div className="text-center text-sm text-slate-400 pt-2">
+                <div className="text-center text-sm text-gray-600 pt-2">
                   Already have an account?{" "}
-                  <Link to="/login" className="text-indigo-400 hover:underline font-bold">
+                  <Link to="/login" className="text-[#2e7d52] hover:underline font-bold">
                     Sign in
                   </Link>
                 </div>
@@ -245,7 +245,7 @@ export default function SignupPage() {
           </CardContent>
         </Card>
       </div>
-      <ToastContainer limit={4} theme="dark" />
+      <ToastContainer limit={4} theme="light" />
     </div>
   );
 }

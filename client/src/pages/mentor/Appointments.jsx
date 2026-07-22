@@ -79,33 +79,33 @@ const Appointments = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-bold mb-2 border border-indigo-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full badge-mint text-xs font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
             Mentor Appointments Console
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
-            Scheduled <span className="gradient-text">Mentorship Requests</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937]">
+            Scheduled <span className="gradient-text-sage">Mentorship Requests</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             Review student booking requests, accept appointments, or mark sessions completed.
           </p>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="glass-card p-4 rounded-2xl border border-white/10 flex flex-wrap items-center gap-4">
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Filter className="w-3.5 h-3.5 text-indigo-400" /> Filter Sessions:
+      <div className="sage-card p-4 rounded-2xl border border-[#E5E7EB] flex flex-wrap items-center gap-4 bg-white">
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5 text-[#4CAF7D]" /> Filter Sessions:
         </span>
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="border-white/10 bg-slate-900/60 text-white font-bold text-xs rounded-xl">
-              <CalendarDays className="w-4 h-4 text-indigo-400 mr-2" />
+            <Button variant="outline" className="border-[#E5E7EB] bg-white text-[#1F2937] font-bold text-xs rounded-xl">
+              <CalendarDays className="w-4 h-4 text-[#4CAF7D] mr-2" />
               {date ? format(date, "dd MMM yyyy") : "All Dates"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto p-0 bg-slate-950 border border-white/10 text-white">
+          <PopoverContent align="start" className="w-auto p-0 bg-white border border-[#E5E7EB]">
             <Calendar
               mode="single"
               selected={date}
@@ -120,18 +120,18 @@ const Appointments = () => {
             variant="ghost"
             size="sm"
             onClick={() => setDate(null)}
-            className="text-xs font-bold text-slate-400 hover:text-white"
+            className="text-xs font-bold text-gray-500 hover:text-[#1F2937]"
           >
             Clear Date Filter
           </Button>
         )}
 
         <Select onValueChange={setTimeSlot} defaultValue="all">
-          <SelectTrigger className="w-36 border-white/10 bg-slate-900/60 text-white font-bold text-xs rounded-xl">
-            <Clock className="mr-2 h-3.5 w-3.5 text-indigo-400" />
+          <SelectTrigger className="w-36 border-[#E5E7EB] bg-white text-[#1F2937] font-bold text-xs rounded-xl">
+            <Clock className="mr-2 h-3.5 w-3.5 text-[#4CAF7D]" />
             <SelectValue placeholder="Time Slot" />
           </SelectTrigger>
-          <SelectContent className="bg-slate-900 border-white/10 text-white">
+          <SelectContent className="bg-white border-[#E5E7EB] text-[#1F2937]">
             <SelectItem value="all">All Slots</SelectItem>
             <SelectItem value="Morning">Morning</SelectItem>
             <SelectItem value="Afternoon">Afternoon</SelectItem>
@@ -145,43 +145,43 @@ const Appointments = () => {
         {loading ? (
           <div className="col-span-full flex justify-center items-center min-h-[300px]">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
-              <p className="text-slate-400 font-bold text-sm">Loading session requests...</p>
+              <Loader2 className="h-10 w-10 animate-spin text-[#4CAF7D]" />
+              <p className="text-gray-500 font-bold text-sm">Loading session requests...</p>
             </div>
           </div>
         ) : filteredAppointments.length === 0 ? (
-          <div className="col-span-full text-center py-16 glass-card rounded-3xl border border-white/10 space-y-2">
-            <CalendarDays className="w-12 h-12 text-slate-500 mx-auto" />
-            <h3 className="font-bold text-lg text-white">No sessions found</h3>
-            <p className="text-slate-400 text-sm">No mentorship appointments match your selected date/timeslot filters.</p>
+          <div className="col-span-full text-center py-16 sage-card rounded-3xl border border-[#E5E7EB] space-y-2 bg-white">
+            <CalendarDays className="w-12 h-12 text-gray-400 mx-auto" />
+            <h3 className="font-bold text-lg text-[#1F2937]">No sessions found</h3>
+            <p className="text-gray-500 text-sm">No mentorship appointments match your selected date/timeslot filters.</p>
           </div>
         ) : (
           filteredAppointments.map((appt) => (
             <Card
               key={appt._id}
-              className="glass-card glass-card-hover rounded-3xl border border-white/10 flex flex-col justify-between overflow-hidden"
+              className="sage-card sage-card-hover rounded-3xl border border-[#E5E7EB] flex flex-col justify-between overflow-hidden bg-white"
             >
-              <CardHeader className="flex flex-row items-center justify-between gap-2 p-6 border-b border-white/10 bg-slate-900/40">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 p-6 border-b border-[#E5E7EB] bg-[#FAFBF8]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-extrabold shadow-md">
+                  <div className="w-10 h-10 rounded-2xl bg-[#4CAF7D] text-white flex items-center justify-center font-extrabold shadow-md">
                     <UserCircle2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg font-extrabold text-white">
+                    <CardTitle className="text-lg font-extrabold text-[#1F2937]">
                       {appt.studentID?.name || "Student"}
                     </CardTitle>
-                    <p className="text-xs text-slate-400 font-medium">Mentorship Student</p>
+                    <p className="text-xs text-gray-500 font-medium">Mentorship Student</p>
                   </div>
                 </div>
                 <Badge
                   className={`font-bold px-3 py-1 text-xs rounded-full ${
                     appt.status === "Completed"
-                      ? "badge-glowing"
+                      ? "badge-mint"
                       : appt.status === "Accepted"
-                      ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                      ? "bg-[#DDF4E7] text-[#2e7d52] border border-[#4CAF7D]/30"
                       : appt.status === "Rejected" || appt.status === "Cancelled"
-                      ? "bg-red-500/15 text-red-400 border border-red-500/30"
-                      : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                      ? "bg-red-50 text-red-600 border border-red-200"
+                      : "badge-gold"
                   }`}
                 >
                   {appt.status}
@@ -189,35 +189,35 @@ const Appointments = () => {
               </CardHeader>
 
               <CardContent className="p-6 text-xs space-y-3.5">
-                <div className="flex items-center gap-2.5 text-slate-300">
-                  <CalendarDays className="w-4 h-4 text-indigo-400 shrink-0" />
+                <div className="flex items-center gap-2.5 text-gray-700">
+                  <CalendarDays className="w-4 h-4 text-[#4CAF7D] shrink-0" />
                   <p>
-                    <span className="font-bold text-white">Date:</span>{" "}
+                    <span className="font-bold text-[#1F2937]">Date:</span>{" "}
                     {format(new Date(appt.date), "dd MMM yyyy")}
                   </p>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-300">
-                  <Clock className="w-4 h-4 text-purple-400 shrink-0" />
+                <div className="flex items-center gap-2.5 text-gray-700">
+                  <Clock className="w-4 h-4 text-[#2e7d52] shrink-0" />
                   <p>
-                    <span className="font-bold text-white">Timeslot:</span>{" "}
+                    <span className="font-bold text-[#1F2937]">Timeslot:</span>{" "}
                     {appt.timeSlot}
                   </p>
                 </div>
-                <div className="flex items-start gap-2.5 text-slate-300">
-                  <FileText className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2.5 text-gray-700">
+                  <FileText className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
                   <p className="line-clamp-2">
-                    <span className="font-bold text-white">Goal / Topic:</span>{" "}
+                    <span className="font-bold text-[#1F2937]">Goal / Topic:</span>{" "}
                     {appt.reason || "N/A"}
                   </p>
                 </div>
               </CardContent>
 
-              <CardFooter className="p-6 pt-0 gap-3 border-t border-white/10">
+              <CardFooter className="p-6 pt-0 gap-3 border-t border-[#E5E7EB]">
                 {appt.status === "Pending" ? (
                   <>
                     <Button
                       size="sm"
-                      className="w-1/2 btn-gradient font-bold rounded-xl h-10"
+                      className="w-1/2 btn-sage font-bold rounded-xl h-10"
                       onClick={() => handleStatusUpdate(appt._id, "Accepted")}
                     >
                       <CheckCircle className="w-4 h-4 mr-1.5" />
@@ -226,7 +226,7 @@ const Appointments = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="w-1/2 text-red-400 border-red-500/30 bg-red-500/10 hover:bg-red-500/20 font-bold rounded-xl h-10"
+                      className="w-1/2 text-red-600 border-red-200 bg-red-50 hover:bg-red-100 font-bold rounded-xl h-10"
                       onClick={() => handleStatusUpdate(appt._id, "Rejected")}
                     >
                       <XCircle className="w-4 h-4 mr-1.5" />
@@ -237,7 +237,7 @@ const Appointments = () => {
                   <>
                     <Button
                       size="sm"
-                      className="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-10 shadow-md"
+                      className="w-1/2 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-xl h-10 shadow-md"
                       onClick={() => handleStatusUpdate(appt._id, "Completed")}
                     >
                       <CheckCheck className="w-4 h-4 mr-1.5" />
@@ -246,7 +246,7 @@ const Appointments = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="w-1/2 text-red-400 border-red-500/30 bg-red-500/10 hover:bg-red-500/20 font-bold rounded-xl h-10"
+                      className="w-1/2 text-red-600 border-red-200 bg-red-50 hover:bg-red-100 font-bold rounded-xl h-10"
                       onClick={() => handleStatusUpdate(appt._id, "Rejected")}
                     >
                       <XCircle className="w-4 h-4 mr-1.5" />
@@ -257,7 +257,7 @@ const Appointments = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full text-xs font-bold rounded-xl h-10 border-white/10 text-slate-300 hover:bg-white/5"
+                    className="w-full text-xs font-bold rounded-xl h-10 border-[#E5E7EB] text-gray-700 hover:bg-[#FAFBF8]"
                     onClick={() => handleStatusUpdate(appt._id, appt.status === "Completed" ? "Accepted" : "Completed")}
                   >
                     Toggle Status ({appt.status})

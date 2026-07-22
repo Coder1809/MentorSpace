@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/utils/api";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { ShoppingCart, Clock, Check, Sparkles, IndianRupee, BookOpen, ArrowRight } from "lucide-react";
+import { ShoppingCart, Clock, Check, Sparkles, IndianRupee } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import CartSheet from "@/components/CartSheet";
 
@@ -48,14 +48,14 @@ const Services = () => {
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header Banner */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold tracking-wide uppercase">
-          <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full badge-mint text-xs font-bold tracking-wide uppercase">
+          <Sparkles className="w-3.5 h-3.5 text-[#2e7d52]" />
           Structured Mentorship Packages
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-          Mentorship Tracks & <span className="gradient-text">Mock Interviews</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#1F2937]">
+          Mentorship Tracks & <span className="gradient-text-sage">Mock Interviews</span>
         </h1>
-        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
           Select custom mentorship tracks designed to fast-track your coding skills, system design knowledge, and career opportunities.
         </p>
 
@@ -71,8 +71,8 @@ const Services = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`rounded-full font-bold text-xs px-4 py-2 transition-all ${
                   isActive
-                    ? "bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/30 border-0"
-                    : "border-white/10 bg-slate-900/60 text-slate-300 hover:text-white hover:bg-white/5"
+                    ? "btn-sage shadow-md"
+                    : "border-[#E5E7EB] bg-white text-gray-700 hover:text-[#1F2937] hover:bg-[#DDF4E7]/40"
                 }`}
               >
                 {cat}
@@ -89,33 +89,33 @@ const Services = () => {
           return (
             <Card
               key={service._id}
-              className="glass-card glass-card-hover rounded-3xl overflow-hidden border border-white/10 flex flex-col justify-between"
+              className="sage-card sage-card-hover rounded-3xl overflow-hidden border border-[#E5E7EB] flex flex-col justify-between"
             >
               <CardContent className="p-6 space-y-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <Badge className="tech-tag text-xs font-bold px-3 py-1 rounded-full">
+                    <Badge className="badge-mint text-xs font-bold px-3 py-1 rounded-full">
                       {service.category || "General"}
                     </Badge>
-                    <h3 className="text-lg font-extrabold text-white pt-2 leading-snug">
+                    <h3 className="text-lg font-extrabold text-[#1F2937] pt-2 leading-snug">
                       {service.name}
                     </h3>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-extrabold text-white flex items-center justify-end">
-                      <IndianRupee className="w-5 h-5 text-emerald-400" />
+                    <span className="text-2xl font-extrabold text-[#1F2937] flex items-center justify-end">
+                      <IndianRupee className="w-5 h-5 text-[#4CAF7D]" />
                       {service.price}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase">per session</span>
+                    <span className="text-[10px] text-gray-500 font-semibold uppercase">per session</span>
                   </div>
                 </div>
 
-                <p className="text-slate-300 text-sm leading-relaxed bg-slate-900/40 p-4 rounded-2xl border border-white/5">
+                <p className="text-gray-600 text-sm leading-relaxed bg-[#FAFBF8] p-4 rounded-2xl border border-[#E5E7EB]">
                   {service.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-xs font-semibold text-indigo-400">
-                  <Clock className="w-4 h-4" />
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#2e7d52]">
+                  <Clock className="w-4 h-4 text-[#4CAF7D]" />
                   <span>Duration: {service.duration || "45 minutes"}</span>
                 </div>
               </CardContent>
@@ -129,13 +129,13 @@ const Services = () => {
                   disabled={inCart}
                   className={`w-full font-bold rounded-2xl h-11 text-sm transition-all ${
                     inCart
-                      ? "bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed"
-                      : "btn-gradient shadow-lg shadow-indigo-600/30"
+                      ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                      : "btn-sage shadow-md"
                   }`}
                 >
                   {inCart ? (
                     <>
-                      <Check className="w-4 h-4 mr-2 text-emerald-400" />
+                      <Check className="w-4 h-4 mr-2 text-[#4CAF7D]" />
                       Added to Cart
                     </>
                   ) : (
@@ -156,7 +156,7 @@ const Services = () => {
         <div className="fixed bottom-8 right-8 z-40">
           <Button
             onClick={() => setSheetOpen(true)}
-            className="btn-gradient font-bold rounded-full h-14 px-6 shadow-2xl shadow-indigo-500/50 flex items-center gap-3 animate-bounce"
+            className="btn-sage font-bold rounded-full h-14 px-6 shadow-xl flex items-center gap-3 animate-bounce"
           >
             <ShoppingCart className="w-5 h-5" />
             <span>View Cart ({cart.length})</span>

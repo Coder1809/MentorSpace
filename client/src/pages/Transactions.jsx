@@ -44,75 +44,75 @@ const Transactions = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Payments & <span className="gradient-text">Transactions Ledger</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight">
+            Payments & <span className="gradient-text-sage">Transactions Ledger</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             Complete transaction history and signature verified Razorpay payment receipts.
           </p>
         </div>
-        <Badge className="badge-glowing px-4 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-md">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" /> Razorpay HMAC Verified
+        <Badge className="badge-mint px-4 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-sm">
+          <ShieldCheck className="w-4 h-4 text-[#4CAF7D]" /> Razorpay HMAC Verified
         </Badge>
       </div>
 
       {/* Search Input */}
       <div className="relative max-w-md">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search by Payment ID, Order ID, or status..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-11 rounded-2xl h-11 bg-slate-900/80 border-white/10 text-white shadow-lg focus:border-indigo-500 text-sm"
+          className="pl-11 rounded-2xl h-11 bg-white border-[#E5E7EB] text-[#1F2937] shadow-sm focus:border-[#4CAF7D] text-sm"
         />
       </div>
 
       {/* Table Container */}
-      <div className="glass-card rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+      <div className="sage-card rounded-3xl border border-[#E5E7EB] shadow-sm overflow-hidden bg-white">
         <Table>
-          <TableHeader className="bg-slate-900/80 border-b border-white/10">
+          <TableHeader className="bg-[#FAFBF8] border-b border-[#E5E7EB]">
             <TableRow>
-              <TableHead className="font-bold text-slate-300">Date</TableHead>
-              <TableHead className="font-bold text-slate-300">Item / Goal</TableHead>
-              <TableHead className="font-bold text-slate-300">Amount (₹)</TableHead>
-              <TableHead className="font-bold text-slate-300">Payment ID</TableHead>
-              <TableHead className="font-bold text-slate-300">Order ID</TableHead>
-              <TableHead className="font-bold text-slate-300">Status</TableHead>
+              <TableHead className="font-bold text-gray-700">Date</TableHead>
+              <TableHead className="font-bold text-gray-700">Item / Goal</TableHead>
+              <TableHead className="font-bold text-gray-700">Amount (₹)</TableHead>
+              <TableHead className="font-bold text-gray-700">Payment ID</TableHead>
+              <TableHead className="font-bold text-gray-700">Order ID</TableHead>
+              <TableHead className="font-bold text-gray-700">Status</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {filteredTransactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-400 italic">
-                  <Receipt className="w-10 h-10 mx-auto text-slate-500 mb-2" />
+                <TableCell colSpan={6} className="text-center py-12 text-gray-500 italic">
+                  <Receipt className="w-10 h-10 mx-auto text-gray-400 mb-2" />
                   No payment transactions found.
                 </TableCell>
               </TableRow>
             ) : (
               filteredTransactions.map((txn) => (
-                <TableRow key={txn._id} className="hover:bg-white/5 border-b border-white/5 transition-colors">
-                  <TableCell className="font-semibold text-slate-300">
+                <TableRow key={txn._id} className="hover:bg-[#FAFBF8] border-b border-[#E5E7EB] transition-colors">
+                  <TableCell className="font-semibold text-gray-700">
                     {format(new Date(txn.createdAt), "dd MMM yyyy")}
                   </TableCell>
-                  <TableCell className="font-bold text-white">
+                  <TableCell className="font-bold text-[#1F2937]">
                     {txn.items && txn.items.length > 0 ? txn.items[0].name : "1-on-1 Mentorship Session"}
                   </TableCell>
-                  <TableCell className="font-extrabold text-emerald-400">
+                  <TableCell className="font-extrabold text-[#2e7d52]">
                     ₹{txn.amount > 1000 ? (txn.amount / 100).toLocaleString() : txn.amount}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-indigo-400 truncate max-w-[150px]">
+                  <TableCell className="font-mono text-xs text-[#2e7d52] truncate max-w-[150px]">
                     {txn.paymentID || txn.paymentId}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-slate-400 truncate max-w-[150px]">
+                  <TableCell className="font-mono text-xs text-gray-500 truncate max-w-[150px]">
                     {txn.orderID || txn.orderId}
                   </TableCell>
                   <TableCell>
                     <Badge
                       className={`font-bold text-xs px-3 py-1 rounded-full ${
                         txn.status === "success"
-                          ? "badge-glowing"
-                          : "bg-red-500/15 text-red-400 border border-red-500/30"
+                          ? "badge-mint"
+                          : "bg-red-50 text-red-600 border border-red-200"
                       }`}
                     >
                       {txn.status === "success" ? "Verified" : txn.status}

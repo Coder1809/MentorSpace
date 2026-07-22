@@ -190,11 +190,11 @@ const Account = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {alert && !isMentor && (
-        <Alert className="glass-card border-amber-500/40 text-amber-300 rounded-3xl p-6">
-          <Siren className="h-6 w-6 text-amber-400 shrink-0" />
+        <Alert className="sage-card border-[#F59E0B]/40 text-[#1F2937] rounded-3xl p-6 bg-amber-50">
+          <Siren className="h-6 w-6 text-[#F59E0B] shrink-0" />
           <div className="w-full">
-            <AlertTitle className="font-bold text-white">Student Record Not Found</AlertTitle>
-            <AlertDescription className="text-sm text-slate-300">
+            <AlertTitle className="font-bold text-[#1F2937]">Student Record Not Found</AlertTitle>
+            <AlertDescription className="text-sm text-gray-600">
               Complete your student profile below to start booking mentorship sessions.
             </AlertDescription>
           </div>
@@ -203,16 +203,16 @@ const Account = () => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 space-y-3">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-          <p className="text-slate-400 font-bold text-sm">Loading profile data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-[#4CAF7D]" />
+          <p className="text-gray-500 font-bold text-sm">Loading profile data...</p>
         </div>
       ) : (
         <div className="space-y-8">
           {/* Profile Overview Card & Edit Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="glass-card rounded-3xl p-6 border border-white/10 text-center space-y-6 flex flex-col items-center justify-center">
-              <Avatar className="w-28 h-28 border-4 border-indigo-500/30 shadow-xl">
-                <AvatarFallback className="text-2xl font-extrabold bg-gradient-to-br from-indigo-600 to-purple-600 text-white">
+            <Card className="sage-card rounded-3xl p-6 border border-[#E5E7EB] text-center space-y-6 flex flex-col items-center justify-center bg-white">
+              <Avatar className="w-28 h-28 border-4 border-[#4CAF7D]/30 shadow-lg">
+                <AvatarFallback className="text-2xl font-extrabold bg-[#4CAF7D] text-white">
                   {details.name
                     ? details.name
                         .split(" ")
@@ -226,10 +226,10 @@ const Account = () => {
               </Avatar>
 
               <div className="space-y-1">
-                <h1 className="text-2xl font-extrabold text-white">
+                <h1 className="text-2xl font-extrabold text-[#1F2937]">
                   {details.name || (isMentor ? "Mentor" : "Student")}
                 </h1>
-                <p className="text-xs font-bold text-indigo-400">
+                <p className="text-xs font-bold text-[#2e7d52]">
                   {isMentor ? details.specialization || "Tech Mentor" : "Student Account"}
                 </p>
               </div>
@@ -239,9 +239,9 @@ const Account = () => {
                   className={`font-bold text-xs px-3.5 py-1 rounded-full ${
                     isMentor
                       ? details.status === "Active"
-                        ? "badge-glowing"
-                        : "bg-slate-800 text-slate-400 border border-slate-700"
-                      : "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
+                        ? "badge-mint"
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                      : "badge-mint"
                   }`}
                 >
                   {isMentor ? `Status: ${details.status || "Active"}` : "Role: Student"}
@@ -252,7 +252,7 @@ const Account = () => {
                     size="sm"
                     variant="outline"
                     onClick={toggleMentorStatus}
-                    className="border-white/10 bg-slate-900/60 hover:bg-white/10 text-white font-bold text-xs rounded-full px-3"
+                    className="border-[#E5E7EB] bg-white hover:bg-[#DDF4E7]/40 text-[#1F2937] font-bold text-xs rounded-full px-3"
                   >
                     Toggle {details.status === "Active" ? "Away" : "Active"}
                   </Button>
@@ -261,24 +261,24 @@ const Account = () => {
             </Card>
 
             {/* Profile Details Card */}
-            <Card className="glass-card rounded-3xl p-8 border border-white/10 lg:col-span-2 space-y-6 flex flex-col justify-between">
+            <Card className="sage-card rounded-3xl p-8 border border-[#E5E7EB] lg:col-span-2 space-y-6 flex flex-col justify-between bg-white">
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-                    <UserCheck className="w-5 h-5 text-indigo-400" /> Account Details
+                <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-4">
+                  <h2 className="text-xl font-extrabold text-[#1F2937] flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 text-[#4CAF7D]" /> Account Details
                   </h2>
 
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                      <Button className="btn-gradient font-bold rounded-xl text-xs px-4">
+                      <Button className="btn-sage font-bold rounded-xl text-xs px-4">
                         Edit Profile
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-slate-950 border border-white/10 text-white rounded-3xl p-6 max-w-lg">
+                    <DialogContent className="bg-white border border-[#E5E7EB] text-[#1F2937] rounded-3xl p-6 max-w-lg">
                       <DialogTitle className="text-xl font-extrabold">
                         {isMentor ? "Update Mentor Profile" : "Update Student Profile"}
                       </DialogTitle>
-                      <DialogDescription className="text-xs text-slate-400">
+                      <DialogDescription className="text-xs text-gray-500">
                         Update your public information and mentorship availability.
                       </DialogDescription>
 
@@ -289,9 +289,9 @@ const Account = () => {
                             name="name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-slate-300 font-semibold text-xs">Full Name</FormLabel>
+                                <FormLabel className="text-gray-700 font-semibold text-xs">Full Name</FormLabel>
                                 <FormControl>
-                                  <Input className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                  <Input className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-10 text-sm" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -304,9 +304,9 @@ const Account = () => {
                               name="phone"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-slate-300 font-semibold text-xs">Phone Number</FormLabel>
+                                  <FormLabel className="text-gray-700 font-semibold text-xs">Phone Number</FormLabel>
                                   <FormControl>
-                                    <Input className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                    <Input className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-10 text-sm" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -318,14 +318,14 @@ const Account = () => {
                               name="gender"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-slate-300 font-semibold text-xs">Gender</FormLabel>
+                                  <FormLabel className="text-gray-700 font-semibold text-xs">Gender</FormLabel>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                      <SelectTrigger className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm">
+                                      <SelectTrigger className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-10 text-sm">
                                         <SelectValue placeholder="Select Gender" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                    <SelectContent className="bg-white border-[#E5E7EB] text-[#1F2937]">
                                       <SelectItem value="Male">Male</SelectItem>
                                       <SelectItem value="Female">Female</SelectItem>
                                     </SelectContent>
@@ -344,9 +344,9 @@ const Account = () => {
                                   name="specialization"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel className="text-slate-300 font-semibold text-xs">Domain Specialization</FormLabel>
+                                      <FormLabel className="text-gray-700 font-semibold text-xs">Domain Specialization</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="React / System Design" className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                        <Input placeholder="React / System Design" className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-10 text-sm" {...field} />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -358,9 +358,9 @@ const Account = () => {
                                   name="experience"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel className="text-slate-300 font-semibold text-xs">Experience</FormLabel>
+                                      <FormLabel className="text-gray-700 font-semibold text-xs">Experience</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="5+ years" className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                        <Input placeholder="5+ years" className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl h-10 text-sm" {...field} />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -373,9 +373,9 @@ const Account = () => {
                                 name="bio"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-slate-300 font-semibold text-xs">Mentor Bio</FormLabel>
+                                    <FormLabel className="text-gray-700 font-semibold text-xs">Mentor Bio</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder="Senior Software Engineer..." className="bg-slate-900 border-white/10 text-white rounded-xl text-sm" {...field} />
+                                      <Textarea placeholder="Senior Software Engineer..." className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl text-sm" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -388,9 +388,9 @@ const Account = () => {
                               name="description"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-slate-300 font-semibold text-xs">Learning Goals / Bio</FormLabel>
+                                  <FormLabel className="text-gray-700 font-semibold text-xs">Learning Goals / Bio</FormLabel>
                                   <FormControl>
-                                    <Textarea placeholder="Targeting Full Stack Engineering offers..." className="bg-slate-900 border-white/10 text-white rounded-xl text-sm" {...field} />
+                                    <Textarea placeholder="Targeting Full Stack Engineering offers..." className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl text-sm" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -399,7 +399,7 @@ const Account = () => {
                           )}
 
                           <DialogFooter className="pt-4">
-                            <Button type="submit" className="btn-gradient font-bold w-full rounded-xl">
+                            <Button type="submit" className="btn-sage font-bold w-full rounded-xl">
                               Save Changes
                             </Button>
                           </DialogFooter>
@@ -410,32 +410,32 @@ const Account = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
-                    <span className="text-xs font-bold text-slate-400 uppercase">Phone</span>
-                    <p className="font-bold text-white">{details.phone || "Not set"}</p>
+                  <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
+                    <span className="text-xs font-bold text-gray-500 uppercase">Phone</span>
+                    <p className="font-bold text-[#1F2937]">{details.phone || "Not set"}</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
-                    <span className="text-xs font-bold text-slate-400 uppercase">Gender</span>
-                    <p className="font-bold text-white">{details.gender || "Not set"}</p>
+                  <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
+                    <span className="text-xs font-bold text-gray-500 uppercase">Gender</span>
+                    <p className="font-bold text-[#1F2937]">{details.gender || "Not set"}</p>
                   </div>
 
                   {isMentor ? (
                     <>
-                      <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
-                        <span className="text-xs font-bold text-slate-400 uppercase">Experience</span>
-                        <p className="font-bold text-indigo-400">{details.experience || "5+ years"}</p>
+                      <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
+                        <span className="text-xs font-bold text-gray-500 uppercase">Experience</span>
+                        <p className="font-bold text-[#2e7d52]">{details.experience || "5+ years"}</p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
-                        <span className="text-xs font-bold text-slate-400 uppercase">Specialization</span>
-                        <p className="font-bold text-purple-400">{details.specialization || "Tech Mentor"}</p>
+                      <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
+                        <span className="text-xs font-bold text-gray-500 uppercase">Specialization</span>
+                        <p className="font-bold text-[#4CAF7D]">{details.specialization || "Tech Mentor"}</p>
                       </div>
                     </>
                   ) : (
-                    <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1 md:col-span-2">
-                      <span className="text-xs font-bold text-slate-400 uppercase">Learning Target</span>
-                      <p className="font-bold text-indigo-300">{details.description || "Full Stack Engineering & Career Growth"}</p>
+                    <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1 md:col-span-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Learning Target</span>
+                      <p className="font-bold text-[#2e7d52]">{details.description || "Full Stack Engineering & Career Growth"}</p>
                     </div>
                   )}
                 </div>
@@ -444,48 +444,48 @@ const Account = () => {
           </div>
 
           {/* Session History Table */}
-          <div className="glass-card rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-6 space-y-4">
-            <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-indigo-400" /> Session History & Bookings
+          <div className="sage-card rounded-3xl border border-[#E5E7EB] shadow-sm overflow-hidden p-6 space-y-4 bg-white">
+            <h3 className="text-xl font-extrabold text-[#1F2937] flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#4CAF7D]" /> Session History & Bookings
             </h3>
 
             <Table>
-              <TableHeader className="bg-slate-900/80 border-b border-white/10">
+              <TableHeader className="bg-[#FAFBF8] border-b border-[#E5E7EB]">
                 <TableRow>
-                  <TableHead className="font-bold text-slate-300">Date</TableHead>
-                  <TableHead className="font-bold text-slate-300">Slot</TableHead>
-                  <TableHead className="font-bold text-slate-300">Goal / Topic</TableHead>
-                  <TableHead className="font-bold text-slate-300">Status</TableHead>
+                  <TableHead className="font-bold text-gray-700">Date</TableHead>
+                  <TableHead className="font-bold text-gray-700">Slot</TableHead>
+                  <TableHead className="font-bold text-gray-700">Goal / Topic</TableHead>
+                  <TableHead className="font-bold text-gray-700">Status</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {appointments.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-slate-400 italic text-sm">
+                    <TableCell colSpan={4} className="text-center py-8 text-gray-500 italic text-sm">
                       No session records found.
                     </TableCell>
                   </TableRow>
                 ) : (
                   appointments.map((appt) => (
-                    <TableRow key={appt._id} className="hover:bg-white/5 border-b border-white/5">
-                      <TableCell className="font-semibold text-slate-300 text-sm">
+                    <TableRow key={appt._id} className="hover:bg-[#FAFBF8] border-b border-[#E5E7EB]">
+                      <TableCell className="font-semibold text-gray-700 text-sm">
                         {format(new Date(appt.date), "dd MMM yyyy")}
                       </TableCell>
-                      <TableCell className="font-bold text-indigo-400 text-sm">
+                      <TableCell className="font-bold text-[#2e7d52] text-sm">
                         {appt.timeSlot}
                       </TableCell>
-                      <TableCell className="font-medium text-white text-sm">
+                      <TableCell className="font-medium text-[#1F2937] text-sm">
                         {appt.reason}
                       </TableCell>
                       <TableCell>
                         <Badge
                           className={`font-bold text-xs px-3 py-1 rounded-full ${
                             appt.status === "Completed"
-                              ? "badge-glowing"
+                              ? "badge-mint"
                               : appt.status === "Accepted"
-                              ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                              : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              ? "bg-[#DDF4E7] text-[#2e7d52] border border-[#4CAF7D]/30"
+                              : "badge-gold"
                           }`}
                         >
                           {appt.status}
