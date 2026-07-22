@@ -1,227 +1,157 @@
-# 🏥 Hospital Management System
+# MentorSpace — Premier 1-on-1 Tech Mentorship Platform
 
-A full-stack, role-based hospital management web application built for managing patients, appointments, doctors, services, and payments with AI-powered disease prediction and comprehensive analytics.
-
-This project is designed to streamline hospital operations with secure authentication, appointment booking, payment handling, and predictive insights for better patient care.
+MentorSpace is a modern, two-role mentorship platform connecting students with senior tech mentors for 1-on-1 online sessions across software engineering, system design, AI/ML, DevOps, and competitive programming.
 
 ---
 
-## ✨ Features
+## 🌟 Key Features & Architecture
 
-### 👥 User Roles & Authentication
-
-- **Patient/User**: Book appointments, manage profile, browse services, make payments, and access AI disease predictor
-- **Doctor**: View and manage appointments, access patient information, and update availability status
-- **Admin**: Complete system control with user management, analytics dashboard, and full CRUD operations
-- **JWT-based secure authentication** with role-based access control (RBAC)
-- Protected routes with middleware authorization for each role
-
-### 🩺 Appointments Management
-
-- Real-time doctor listing with **age**, **gender**, **specialization**, and **availability status**
-- Book appointments with **date**, **time slot**, and **reason** using intuitive modal forms
-- Admin can view, create, update, and manage all appointments
-- Doctors can view their scheduled appointments and patient details
-- Form validations with real-time feedback using **Zod + React Hook Form**
-
-### 🤖 AI Disease Prediction
-
-- **Machine Learning model** integrated for disease prediction based on symptoms
-- Interactive symptom selector with search and filter functionality
-- Multi-symptom selection with visual badge interface
-- Real-time prediction results from Flask-based AI model
-- Supports 100+ symptoms and predicts various diseases
-- Common diseases reference list for quick information
-
-### 💳 Services & Payments
-
-- Browse available hospital services with **name**, **price**, and **duration**
-- Shopping cart functionality for multiple service selection
-- **Razorpay payment gateway** integration (test mode)
-- Transaction history with detailed order information
-- **PDF receipt generation** with auto-download functionality
-- Admin can create, update, and delete services
-
-### 📊 Analytics Dashboard (Admin)
-
-- **Interactive data visualizations** using Chart.js:
-  - Pie chart showing user distribution (Patients, Doctors, Admins)
-  - Bar graph displaying patient age group demographics
-  - Area chart tracking monthly user registration trends
-- Real-time growth metrics with percentage calculations
-- Comprehensive statistics on total registered users
-
-### 👨‍⚕️ Doctor Management
-
-- Admin can add, edit, and delete doctor profiles
-- Doctor details include **specialization**, **phone**, **age**, **gender**, and **status**
-- Real-time status updates (Active/Away)
-- Doctor-specific dashboard with appointment overview
-
-### 👤 User & Patient Management
-
-- Admin can view and manage all registered users
-- Patient profile management with medical information
-- User role assignment and permissions control
-- Comprehensive user listing with filtering capabilities
-
-### 📄 Transaction Management
-
-- Complete transaction history for all payments
-- Detailed order tracking with **Order ID** and **Payment ID**
-- Transaction status monitoring (Success/Failed/Pending)
-- PDF receipt generation with hospital branding
-- Admin access to all transaction records
-
-### 🌐 Tech Stack
-
-- **Frontend**: React.js, Tailwind CSS, Shadcn UI, React Hook Form, Zod, React Router, Zustand (State Management)
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose, JWT, Express Validator
-- **Payment**: Razorpay API Integration
-- **AI/ML**: Python, Flask, scikit-learn, Joblib (Disease Prediction Model)
-- **PDF Generation**: jsPDF with autoTable plugin
-- **Charts**: Recharts library for data visualization
+- **Strict 2-Role Security Model**: Platform roles are exclusively **Student** and **Mentor** (No Admin role).
+- **Public & Domain-Based Mentor Discovery**: Browse verified mentors across 10 specialized tech domains:
+  - React, Node.js, Java, Python, Machine Learning, DevOps, UI/UX, Data Structures, Competitive Programming, and Cloud.
+- **Interactive Razorpay Payment Checkout**: Integrated Razorpay order creation (`POST /api/payment/create-order`), interactive popup modal (`new window.Razorpay(options).open()`), and HMAC SHA-256 server signature verification (`POST /api/payment/verify`). Zero transactions are generated on payment cancellation or before verification.
+- **Unified Premium Dark Theme**: Built with a sleek midnight slate design system (`#090d16`), glassmorphism cards, glowing status badges, and Google Fonts (`Outfit` for display headings & `Plus Jakarta Sans` for UI).
+- **Self-Healing Profile Architecture**: Automated profile creation and recovery for mentor and student accounts via `/api/mentor/profile` and `/api/student`.
+- **Student Dashboard**: Book sessions, track scheduled appointments, view verified Razorpay transaction receipts, and manage learning goals.
+- **Mentor Console**: Review incoming session requests, accept or reject bookings, update session lifecycle states (`Pending` -> `Accepted` -> `Completed` / `Rejected`), and toggle status availability (`Active` / `Away`).
+- **Role-Based Security Guards**: Every protected API route enforces strict role-based access control (`authenticate`, `authorizeStudent`, `authorizeMentor`) returning `401 Unauthorized` and `403 Forbidden` on unauthorized access.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Tech Stack
 
-### 📦 Prerequisites
-
-- Node.js ≥ 18
-- MongoDB (local or cloud)
-- Python ≥ 3.8 (for AI model)
-- Razorpay test account
+- **Frontend**: React 19, Vite, TailwindCSS, Lucide Icons, Zustand, React-Hook-Form, Zod
+- **Design System**: Midnight Slate Palette, Glassmorphism, Google Fonts (`Outfit` + `Plus Jakarta Sans`)
+- **Backend**: Node.js, Express 5, MongoDB (Mongoose), Crypto (HMAC SHA-256)
+- **Security & Payments**: JWT Authentication, Bcrypt Password Hashing, Razorpay SDK
 
 ---
 
-### 🧱 Installation
+## 🚀 Setup & Execution Guide
 
-#### 1. Clone the Repository
+### 1. Prerequisites
+- Node.js (v18+)
+- MongoDB running locally on `mongodb://127.0.0.1:27017`
 
-```bash
-git clone https://github.com/Coder1809/neocure-hospital_management_system
-cd Hospital-Management
-```
+### 2. Environment Variables
 
-#### 2. Backend Setup
-
-Install backend dependencies:
-
-```bash
-npm install
-```
-
-Create `.env` file in root folder:
-
+Root `.env`:
 ```env
-PORT=5000
-NODE_ENV=production/development
-MONGO_URL=your_mongodb_url
-JWT_SECRET=your_secret_key
-RAZORPAY_KEY_ID=your_key
-RAZORPAY_KEY_SECRET=your_secret
-AI_MODEL_SERVICE_URL=http://localhost:5001
+PORT=8000
+MONGO_URL=mongodb://127.0.0.1:27017/mentorspace
+JWT_SECRET=mentorspace_jwt_secret_key_2026
+RAZORPAY_KEY_ID=rzp_test_dummy_key_id
+RAZORPAY_KEY_SECRET=dummy_key_secret
 ```
 
-#### 3. Frontend Setup
+Client `.env` (`client/.env`):
+```env
+VITE_RAZORPAY_KEY_ID=rzp_test_dummy_key_id
+```
+
+### 3. Installation & Database Seeding
 
 ```bash
-cd client
+# Install dependencies
 npm install
+
+# Seed Database with 10 Mentors across 10 domains, 5 Students, sample appointments & transactions
+npm run seed
+
+# Run automated 2-role API test suite
+npm test
 ```
 
-#### 4. AI Model Setup
+### 4. Running the Application
 
+#### Option A: Using 1 Terminal (Recommended ⭐)
 ```bash
-cd ai_model
-pip install -r requirements.txt
-```
-
-Generate the ML model (optional, if model.pkl doesn't exist):
-
-```bash
-python gen_model.py
-```
-
-#### 5. Run the Application
-
-Start the AI model server:
-
-```bash
-cd ai_model
-python app.py
-# Runs on http://localhost:5001
-```
-
-Start the backend server (in new terminal):
-
-```bash
+# Runs backend server (port 8000) & frontend Vite app (port 5173) concurrently
 npm run dev
-# Runs on http://localhost:5000
 ```
 
-Start the frontend (in new terminal):
+#### Option B: Using 2 Terminals
+- **Terminal 1 (Backend Server)**: `npm run dev:server`
+- **Terminal 2 (Frontend Client)**: `npm run dev:client`
 
+---
+
+## 🔑 Default Seed Credentials
+
+Default Password for all sample accounts: **`Admin123@`**
+
+### Mentor Accounts (10 Domains)
+| Domain | Email | Password | Status |
+|---|---|---|---|
+| **React** | `sarahchen@mentorspace.com` | `Admin123@` | Active |
+| **Node.js** | `michaelchang@mentorspace.com` | `Admin123@` | Active |
+| **Java** | `davidmiller@mentorspace.com` | `Admin123@` | Active |
+| **Python** | `elenarostova@mentorspace.com` | `Admin123@` | Active |
+| **Machine Learning** | `dr.andrewkim@mentorspace.com` | `Admin123@` | Active |
+| **DevOps** | `jameswilson@mentorspace.com` | `Admin123@` | Active |
+| **UI/UX** | `emmawatson@mentorspace.com` | `Admin123@` | Active |
+| **Data Structures** | `priyasharma@mentorspace.com` | `Admin123@` | Active |
+| **Competitive Programming** | `vikrammalhotra@mentorspace.com` | `Admin123@` | Active |
+| **Cloud** | `roberttaylor@mentorspace.com` | `Admin123@` | Active |
+
+### Student Accounts (5 Students)
+| Student Name | Email | Password |
+|---|---|---|
+| **Rahul Verma** | `rahul@student.com` | `Admin123@` |
+| **Ananya Gupta** | `ananya@student.com` | `Admin123@` |
+| **Karan Patel** | `karan@student.com` | `Admin123@` |
+| **Sneha Reddy** | `sneha@student.com` | `Admin123@` |
+| **Devansh Shah** | `devansh@student.com` | `Admin123@` |
+
+---
+
+## 📡 API Endpoints Summary
+
+### Authentication (`/api/auth`)
+- `POST /api/auth/register` — Register new user (`role`: `"student"` or `"mentor"`)
+- `POST /api/auth/login` — Login user (returns JWT token containing `userId` and `role`)
+- `POST /api/auth/logout` — Logout user
+
+### User (`/api/user`)
+- `GET /api/user` — Get authenticated user details (`authenticate` middleware)
+
+### Mentors (`/api/mentor`)
+- `GET /api/mentor` — List all active tech mentors (Public)
+- `GET /api/mentor/:id` — Get single mentor details (Public)
+- `GET /api/mentor/profile` — Self mentor profile details (`authenticate`, `authorizeMentor`)
+- `PUT /api/mentor/profile` — Update self mentor profile & availability (`authenticate`, `authorizeMentor`)
+- `PUT /api/mentor/:id` — Update mentor profile by ID (`authenticate`, `authorizeMentor`)
+
+### Students (`/api/student`)
+- `GET /api/student` — Get student profile (`authenticate`, `authorizeStudent`)
+- `POST /api/student` — Upsert student profile (`authenticate`, `authorizeStudent`)
+
+### Appointments (`/api/appointment`)
+- `GET /api/appointment` — Get appointments for logged-in user (`authenticate`)
+- `POST /api/appointment` — Book session (`authenticate`, `authorizeStudent`)
+- `PUT /api/appointment/:id` — Update appointment status (`authenticate`, `authorizeMentor`)
+
+### Payments (`/api/payment`)
+- `POST /api/payment/create-order` — Create Razorpay order (`authenticate`, `authorizeStudent`)
+- `POST /api/payment/verify` — Verify Razorpay HMAC signature & create appointment (`authenticate`, `authorizeStudent`)
+- `GET /api/payment` — Get payment transaction history (`authenticate`)
+
+---
+
+## 🧪 Automated Testing & Production Build
+
+Run the automated 2-role system test suite:
 ```bash
-cd client
-npm run dev
-# Runs on http://localhost:5173
+npm test
+```
+The test suite validates registration, login, JWT verification, self-healing profile endpoints, public mentor listing, Razorpay order creation, HMAC payment signature verification, appointment status lifecycle, and `403 Forbidden` security blocks.
+
+Build the client bundle for production:
+```bash
+npm run build
 ```
 
 ---
 
-## 📸 Key Features Overview
-
-### 🤖 Disease Prediction System
-
-- ML-powered symptom analysis
-- 100+ symptoms database
-- Real-time prediction API
-- Flask backend integration
-
-### 📊 Admin Analytics
-
-- Visual data representation
-- User growth tracking
-- Age demographics analysis
-- Month-over-month metrics
-
-### 💳 Payment System
-
-- Secure Razorpay integration
-- Auto-generated PDF receipts
-- Transaction history tracking
-- Order management
-
----
-
-## 🔒 Security Features
-
-- JWT token-based authentication
-- Password hashing with bcrypt
-- Role-based middleware protection
-- Input validation using Zod and Express Validator
-- Protected API endpoints
-- CORS configuration
-
----
-
-## 📱 Responsive Design
-
-- Mobile-first approach
-- Tablet and desktop optimized
-- Dark mode support via Shadcn UI
-- Accessible UI components
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
----
-
-## 📝 License
-
-This project is open source and available under the MIT License.
+## 📄 License
+ISC License

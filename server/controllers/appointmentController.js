@@ -1,10 +1,9 @@
 import appointmentModel from "../models/appointmentModel.js";
 import { validationResult } from "express-validator";
-import patientModel from "../models/patientModel.js";
-import doctorModel from "../models/doctorModel.js";
+import studentModel from "../models/studentModel.js";
+import mentorModel from "../models/mentorModel.js";
 import authModel from "../models/authModel.js";
 import mongoose from "mongoose";
-import { cache } from "../utils/cache.js";
 
 const createAppointment = async (req, res) => {
   const errors = validationResult(req);
@@ -18,141 +17,123 @@ const createAppointment = async (req, res) => {
 
   const requesterUserId = req.user.id;
   const {
-    doctorID: doctorDocId,
-    patientID: patientUserIdFromBody,
+    mentorID: mentorDocId,
+    studentID: studentUserIdFromBody,
     date,
     timeSlot,
   } = req.body;
 
-  // 1. Start a Session
-  const session = await mongoose.startSession();
+  const effectiveStudentUserId = requesterUserId;
 
-  try {
-    // 2. Start Transaction with SERIALIZABLE isolation (Snapshot)
-    session.startTransaction({
-      readConcern: { level: "snapshot" },
-      writeConcern: { w: "majority" },
-    });
+  // Helper logic to execute booking
+  const executeBooking = async (sessionOption = {}) => {
+    const stu = await studentModel.findOne({ studentID: effectiveStudentUserId }, null, sessionOption);
+    if (!stu) {
+      throw new Error("Student profile not found. Please complete your profile first.");
+    }
+    const studentID = stu._id;
 
-    const effectivePatientUserId =
-      req.user.role === "admin" ? patientUserIdFromBody : requesterUserId;
-
-    if (!effectivePatientUserId) {
-      if (session.inTransaction()) {
-        await session.abortTransaction();
-      }
-      session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: "patientID is required when booking as admin",
-      });
+    if (!mentorDocId) {
+      const err = new Error("Mentor ID is required");
+      err.statusCode = 400;
+      throw err;
     }
 
-    const pat = await patientModel
-      .findOne({ patientID: effectivePatientUserId })
-      .session(session);
-    if (!pat) {
-      throw new Error("Patient profile not found");
-    }
-    const patientID = pat._id;
-
-    // Doctor Schedule Locking / Availability Check
-    if (!doctorDocId) {
-      if (session.inTransaction()) {
-        await session.abortTransaction();
-      }
-      session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: "Doctor ID is required",
-      });
+    const mentor = await mentorModel.findById(mentorDocId, null, sessionOption);
+    if (!mentor) {
+      throw new Error(`Mentor profile not found for ID ${mentorDocId}.`);
     }
 
-    const doctor = await doctorModel.findById(doctorDocId).session(session);
-
-    if (!doctor) {
-      console.error(
-        `Doctor not found for doctorID: ${doctorDocId}, doctors collection check needed`
-      );
-      throw new Error(
-        `Doctor profile not found for ID ${doctorDocId}. The doctor may not have created their profile yet.`
-      );
+    if (mentor.status === "Away") {
+      const err = new Error("Mentor is currently unavailable (Status: Away)");
+      err.statusCode = 400;
+      throw err;
     }
 
-    if (doctor.status === "Away") {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: "Doctor is currently unavailable (Status: Away)",
-      });
-    }
-
-    // Enforce one booking per doctor per timeSlot per date
-    const slotConflict = await appointmentModel
-      .findOne({ doctorID: doctor._id, date, timeSlot })
-      .session(session);
+    const slotConflict = await appointmentModel.findOne(
+      { mentorID: mentor._id, date, timeSlot },
+      null,
+      sessionOption
+    );
     if (slotConflict) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(409).json({
-        success: false,
-        message: "This time slot is already booked for the doctor.",
-      });
+      const err = new Error("This time slot is already booked for the mentor.");
+      err.statusCode = 409;
+      throw err;
     }
 
-    // Conflict Detection: Check if patient already booked for this doctor on same date
-    const existingPatientBooking = await appointmentModel
-      .findOne({
-        patientID,
-        doctorID: doctor._id,
-        date,
-      })
-      .session(session);
+    const existingStudentBooking = await appointmentModel.findOne(
+      { studentID, mentorID: mentor._id, date },
+      null,
+      sessionOption
+    );
 
-    if (existingPatientBooking) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(409).json({
-        success: false,
-        message:
-          "You already have an appointment with this doctor on this date.",
-      });
+    if (existingStudentBooking) {
+      const err = new Error("You already have a mentorship session with this mentor on this date.");
+      err.statusCode = 409;
+      throw err;
     }
 
-    // Create Appointment
     const appointment = new appointmentModel({
-      patientID,
-      doctorID: doctor._id,
+      studentID,
+      mentorID: mentor._id,
       date,
       timeSlot,
       status: "Pending",
       reason: req.body.reason,
     });
 
-    // Save with the session
-    await appointment.save({ session });
+    await appointment.save(sessionOption);
+    return appointment;
+  };
 
-    // Clear appointment caches for doctor and patient
-    await cache.del(`doctor:${doctor._id}:appointments`);
-    await cache.delPattern(`user:${effectivePatientUserId}:appointments:*`);
+  let session = null;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction({
+      readConcern: { level: "snapshot" },
+      writeConcern: { w: "majority" },
+    });
 
-    // 3. Commit Transaction
+    const appointment = await executeBooking({ session });
     await session.commitTransaction();
     session.endSession();
 
     return res.status(201).json({
       success: true,
-      message: "Appointment successfully booked",
+      message: "Mentorship session successfully booked",
+      data: appointment,
     });
   } catch (err) {
-    // 4. Rollback on failure
-    if (session.inTransaction()) {
-      await session.abortTransaction();
+    if (session) {
+      if (session.inTransaction()) {
+        await session.abortTransaction();
+      }
+      session.endSession();
     }
-    session.endSession();
 
-    // Check for MongoDB duplicate key error (Race condition catcher)
+    // Fallback for standalone MongoDB instance (where transactions are not supported)
+    if (err.message && err.message.includes("Transaction numbers are only allowed")) {
+      try {
+        const appointment = await executeBooking();
+        return res.status(201).json({
+          success: true,
+          message: "Mentorship session successfully booked",
+          data: appointment,
+        });
+      } catch (fallbackErr) {
+        if (fallbackErr.code === 11000) {
+          return res.status(409).json({
+            success: false,
+            message: "Slot was just booked by another user. Please try again.",
+          });
+        }
+        return res.status(fallbackErr.statusCode || 500).json({
+          success: false,
+          message: fallbackErr.message || "Appointment booking failed",
+        });
+      }
+    }
+
     if (err.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -160,11 +141,9 @@ const createAppointment = async (req, res) => {
       });
     }
 
-    console.error("Transaction Error:", err);
-    return res.status(500).json({
+    return res.status(err.statusCode || 500).json({
       success: false,
-      message: "Appointment could not be created due to a server error",
-      error: err.message,
+      message: err.message || "Appointment could not be created due to a server error",
     });
   }
 };
@@ -173,7 +152,6 @@ const updateAppointment = async (req, res) => {
   const { id: userId } = req.user;
   const { id: appointmentId } = req.params;
 
-  // Fetch user from DB to get current role (in case it was updated after login)
   const user = await authModel.findById(userId);
   if (!user) {
     return res.status(404).json({
@@ -194,16 +172,16 @@ const updateAppointment = async (req, res) => {
     const update = { status: req.body.status };
     const filter = { _id: appointmentId };
 
-    if (role === "doctor") {
-      const doctor = await doctorModel.findOne({ doctorID: userId });
-      if (!doctor) {
+    if (role === "mentor") {
+      const mentor = await mentorModel.findOne({ mentorID: userId });
+      if (!mentor) {
         return res.status(404).json({
           success: false,
-          message: "Doctor profile not found",
+          message: "Mentor profile not found",
         });
       }
-      filter.doctorID = doctor._id;
-    } else if (role !== "admin") {
+      filter.mentorID = mentor._id;
+    } else {
       return res.status(403).json({
         success: false,
         message: "Unauthorized",
@@ -225,25 +203,15 @@ const updateAppointment = async (req, res) => {
       });
     }
 
-    // Invalidate appointment caches for doctor and patient
-    const doctorIdStr = appointment.doctorID?.toString();
-    const patientIdStr = appointment.patientID?.toString();
-    if (doctorIdStr) {
-      await cache.del(`doctor:${doctorIdStr}:appointments`);
-    }
-    if (patientIdStr) {
-      await cache.delPattern(`user:${patientIdStr}:appointments:*`);
-    }
-
     return res.status(200).json({
       success: true,
-      message: "Appointment status updated",
+      message: "Mentorship session status updated",
       data: appointment,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Server error updating",
+      message: "Server error updating appointment",
       error: err.message,
     });
   }
@@ -254,65 +222,48 @@ const getAppointment = async (req, res) => {
   const { id: appointmentId } = req.params;
 
   try {
-    const role = req.user.role;
+    let role = req.user.role;
+    if (role === "user") {
+      const user = await authModel.findById(userID);
+      if (user) role = user.role;
+    }
 
     let filter = {};
 
-    if (role === "admin") {
-      if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
-        filter._id = appointmentId;
-      }
-    } else if (role === "doctor") {
-      // Try cached doctor ObjectId
-      let doctorId = await cache.get(`user:${userID}:doctorId`);
-      if (!doctorId) {
-        const doctor = await doctorModel
-          .findOne({ doctorID: userID })
-          .select("_id")
-          .lean();
-        if (!doctor)
-          return res.status(404).json({
-            success: false,
-            message: "Doctor not found",
-          });
-        doctorId = doctor._id;
-        await cache.set(`user:${userID}:doctorId`, doctorId, 600);
-      }
-      filter.doctorID = doctorId;
-      if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
-        filter._id = appointmentId;
-      }
-    } else if (role === "patient") {
-      // Try cached patient ObjectId
-      let patientId = await cache.get(`user:${userID}:patientId`);
-      if (!patientId) {
-        const patient = await patientModel
-          .findOne({ patientID: userID })
-          .select("_id")
-          .lean();
-        if (!patient)
-          return res.status(404).json({
-            success: false,
-            message: "Patient not found",
-          });
-        patientId = patient._id;
-        await cache.set(`user:${userID}:patientId`, patientId, 600);
-      }
-      filter.patientID = patientId;
+    if (role === "mentor") {
+      const mentor = await mentorModel
+        .findOne({ mentorID: userID })
+        .select("_id")
+        .lean();
+      if (!mentor)
+        return res.status(404).json({
+          success: false,
+          message: "Mentor profile not found",
+        });
+      filter.mentorID = mentor._id;
       if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
         filter._id = appointmentId;
       }
     } else {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized role",
-      });
+      const student = await studentModel
+        .findOne({ studentID: userID })
+        .select("_id")
+        .lean();
+      if (!student)
+        return res.status(404).json({
+          success: false,
+          message: "Student profile not found",
+        });
+      filter.studentID = student._id;
+      if (appointmentId && mongoose.Types.ObjectId.isValid(appointmentId)) {
+        filter._id = appointmentId;
+      }
     }
 
     const appointments = await appointmentModel
       .find(filter)
-      .populate("doctorID")
-      .populate("patientID");
+      .populate("mentorID")
+      .populate("studentID");
 
     return res.status(200).json({
       success: true,
@@ -332,8 +283,8 @@ const getAllAppointments = async (req, res) => {
   try {
     const appointments = await appointmentModel
       .find({})
-      .populate("patientID")
-      .populate("doctorID");
+      .populate("studentID")
+      .populate("mentorID");
 
     return res.status(200).json({
       success: true,
@@ -344,7 +295,7 @@ const getAllAppointments = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error fetching appointments",
-      error: err,
+      error: err.message,
     });
   }
 };

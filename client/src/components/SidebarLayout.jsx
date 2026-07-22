@@ -13,49 +13,52 @@ import {
 } from "@/components/ui/sidebar";
 import { Outlet } from "react-router";
 import { Slide, ToastContainer } from "react-toastify";
-import { ModeToggle } from "./mode-toggle";
 import { format } from "date-fns";
 
-export default function Page() {
+export default function SidebarLayout() {
   const date = new Date();
-  const formatted = format(date, "MMMM yyyy");
+  const formattedDate = format(date, "EEEE, MMMM d, yyyy");
 
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="sticky top-0 z-50 flex items-center justify-between h-16 border-b bg-background px-4">
+      <SidebarInset className="bg-[#FAFBF8] text-[#1F2937]">
+        <header className="sticky top-0 z-40 flex items-center justify-between h-16 border-b border-[#E5E7EB] bg-white/90 backdrop-blur-xl px-6">
           <div className="flex items-center gap-3">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" />
+            <SidebarTrigger className="-ml-1 text-gray-600 hover:text-[#4CAF7D]" />
+            <Separator orientation="vertical" className="h-4 bg-[#E5E7EB]" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{formatted}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-gray-600 font-semibold text-sm">
+                    {formattedDate}
+                  </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
 
-          {/* Right Section: Theme Toggle */}
-          <div className="flex items-center">
-            <ModeToggle />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full badge-mint text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[#4CAF7D] animate-pulse" />
+              MentorSpace Live Platform
+            </div>
           </div>
         </header>
 
-        <Outlet />
+        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full">
+          <Outlet />
+        </main>
+
         <ToastContainer
           position="top-center"
           autoClose={4000}
           limit={4}
           hideProgressBar={false}
           newestOnTop
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss={false}
-          draggable={false}
+          closeOnClick
           pauseOnHover
-          theme="colored"
+          theme="light"
           transition={Slide}
         />
       </SidebarInset>

@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 const appointmentSchema = new mongoose.Schema(
   {
-    patientID: {
+    studentID: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "patients",
+      ref: "students",
       required: true,
     },
-    doctorID: {
+    mentorID: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "doctors",
+      ref: "mentors",
       required: true,
     },
     date: {
@@ -23,7 +23,7 @@ const appointmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Completed", "Rejected"],
+      enum: ["Pending", "Accepted", "Completed", "Rejected", "Cancelled"],
       default: "Pending",
     },
     reason: {
@@ -37,7 +37,7 @@ const appointmentSchema = new mongoose.Schema(
 );
 
 appointmentSchema.index(
-  { doctorID: 1, date: 1, timeSlot: 1 },
+  { mentorID: 1, date: 1, timeSlot: 1 },
   { unique: true }
 );
 

@@ -1,19 +1,18 @@
 {
-  "name": "hospital-management",
+  "name": "mentorspace",
   "type": "module",
   "version": "1.0.0",
-  "description": "Hospital Management system",
+  "description": "MentorSpace Mentorship Platform",
   "main": "server.js",
   "scripts": {
     "dev:server": "nodemon server/server.js",
     "dev:client": "npm run dev --prefix client",
-    "dev:ai": "cd ai_model && python app.py",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:ai\"",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "build:client": "cd client && npm --force install && npm run build",
     "build:server": "npm install",
-    "build:ai": "cd ai_model && pip install -r requirements.txt && python gen_model.py",
     "build": "npm run build:client && npm run build:server",
-    "start:ai": "cd ai_model && gunicorn -w 4 -b 0.0.0.0:5001 app:app",
+    "seed": "node server/seed.js",
+    "test": "node server/test_api.js",
     "start": "cross-env NODE_ENV=production node server/server.js"
   },
   "author": "Rushil Reddy",
@@ -28,8 +27,7 @@
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.1",
-    "razorpay": "^2.9.6",
-    "redis": "^4.7.1"
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",

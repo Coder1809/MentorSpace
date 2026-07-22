@@ -13,8 +13,18 @@ const servicesSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["diagnostic", "consultation", "surgery", "therapy", "other"],
-      default: "other",
+      enum: [
+        "Web Development",
+        "Competitive Programming",
+        "Machine Learning",
+        "System Design",
+        "DSA",
+        "Resume Review",
+        "Career Guidance",
+        "Mock Interview",
+        "Other",
+      ],
+      default: "Other",
     },
     price: {
       type: Number,
@@ -22,7 +32,7 @@ const servicesSchema = new mongoose.Schema(
     },
     duration: {
       type: String,
-      default: "30 minutes",
+      default: "45 minutes",
     },
   },
   { timestamps: true }

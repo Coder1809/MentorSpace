@@ -1,4 +1,3 @@
-// components/AppointmentDialog.jsx
 import React from "react";
 import {
   Dialog,
@@ -34,28 +33,109 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { api } from "@/utils/api";
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (typeof window !== "undefined" && window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const AppointmentDialog = ({
   open,
   setOpen,
   form,
-  selectedDoctor,
+  selectedMentor,
   appointment,
   mode = "create",
 }) => {
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
   const isEdit = mode === "edit";
 
   const handleSubmit = async (values) => {
     try {
       if (isEdit) {
         await api.put(`/appointment/${appointment._id}`, values);
-        toast.success("Appointment rescheduled successfully");
-      } else {
-        await api.post("/appointment", values);
-        toast.success("Appointment scheduled successfully");
+        toast.success("Session rescheduled successfully");
+        setOpen(false);
+        return;
       }
-      setOpen(false);
+
+      // Ensure Razorpay SDK is loaded
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded || typeof window.Razorpay === "undefined") {
+        toast.error("Razorpay SDK failed to load. Please check your internet connection.");
+        return;
+      }
+
+      // Step 1: Create Razorpay Order via Backend SDK
+      const amount = 1499; // Standard 1-on-1 Mentorship Fee
+      const { data } = await api.post("/payment/create-order", { amount });
+
+      if (!data.success || !data.order) {
+        throw new Error("Order creation failed");
+      }
+
+      // Helper to verify payment signature and store transaction + appointment
+      const verifyAndComplete = async (paymentDetails) => {
+        const verifyRes = await api.post("/payment/verify", {
+          ...paymentDetails,
+          mentorID: values.mentorID,
+          date: values.date,
+          timeSlot: values.timeSlot,
+          reason: values.reason,
+        });
+
+        if (verifyRes.data.success) {
+          toast.success("Payment Verified & Mentorship Session Booked!");
+          setOpen(false);
+        } else {
+          toast.error(verifyRes.data.message || "Payment verification failed");
+        }
+      };
+
+      // Step 2: Open interactive Razorpay Checkout Modal
+      const options = {
+        key: razorpayKey || "rzp_test_dummy_key_id",
+        amount: data.order.amount,
+        currency: data.order.currency || "INR",
+        name: "MentorSpace Platform",
+        description: `Mentorship Session with ${selectedMentor?.name || "Mentor"}`,
+        order_id: data.order.id,
+        handler: async function (response) {
+          await verifyAndComplete({
+            razorpay_order_id: response.razorpay_order_id || data.order.id,
+            razorpay_payment_id: response.razorpay_payment_id || `pay_test_${Date.now()}`,
+            razorpay_signature: response.razorpay_signature || "mock_verified_signature",
+            amount: data.order.amount,
+            currency: data.order.currency || "INR",
+          });
+        },
+        modal: {
+          ondismiss: function () {
+            toast.info("Payment cancelled.");
+          },
+        },
+        prefill: {
+          name: "Student User",
+          email: "student@mentorspace.io",
+          contact: "9876543210",
+        },
+        theme: {
+          color: "#4f46e5",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
-      toast.error("Appointment could not be scheduled");
+      toast.error(err.response?.data?.message || err.message || "Session could not be booked");
       console.error(err);
     }
   };
@@ -65,12 +145,12 @@ const AppointmentDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Reschedule Appointment" : "Confirm Appointment"}
+            {isEdit ? "Reschedule Mentorship Session" : "Book Mentorship Session"}
           </DialogTitle>
           <DialogDescription>
-            {selectedDoctor
-              ? `Edit details for appointment with Dr. ${selectedDoctor.name}`
-              : ""}
+            {selectedMentor
+              ? `Booking session with Mentor ${selectedMentor.name} (${selectedMentor.specialization || "Tech Mentor"})`
+              : "Select session date, time slot, and topic."}
           </DialogDescription>
         </DialogHeader>
 
@@ -81,7 +161,7 @@ const AppointmentDialog = ({
           >
             <FormField
               control={form.control}
-              name="doctorID"
+              name="mentorID"
               render={({ field }) => <input type="hidden" {...field} />}
             />
             <div className="flex flex-col md:flex-row gap-4 w-full">
@@ -90,7 +170,7 @@ const AppointmentDialog = ({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col gap-3 w-1/2">
-                    <FormLabel>Date of Appointment</FormLabel>
+                    <FormLabel>Session Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -150,10 +230,10 @@ const AppointmentDialog = ({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason</FormLabel>
+                  <FormLabel>Session Goal / Discussion Topic</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Explain your symptoms or reason..."
+                      placeholder="Specify your goals (e.g. System design mock, resume review, DSA problem solving)..."
                       {...field}
                     />
                   </FormControl>
@@ -163,8 +243,8 @@ const AppointmentDialog = ({
             />
 
             <div className="w-full flex justify-end">
-              <Button type="submit" className="font-semibold">
-                {isEdit ? "Update" : "Confirm"}
+              <Button type="submit" className="font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">
+                {isEdit ? "Update Session" : "Confirm Booking"}
               </Button>
             </div>
           </form>

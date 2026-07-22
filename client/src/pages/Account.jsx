@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { api } from "@/utils/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Copy, Ellipsis, Siren, Loader2 } from "lucide-react";
+import { Copy, Siren, Loader2, Sparkles, CheckCircle, UserCheck, ShieldCheck } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,12 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -39,13 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SelectGroup } from "@radix-ui/react-select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Form,
   FormControl,
@@ -57,36 +45,31 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { useUserStore } from "@/store/userStore";
-import { Link } from "react-router-dom";
 
-const schema = z.object({
+const studentSchema = z.object({
   name: z.string().min(1, "Name is required").max(40),
-  age: z.coerce
-    .number({ invalid_type_error: "Age must be a number" })
-    .min(1, "Must be at least 1")
-    .max(120, "Too old"),
-  gender: z.enum(["Male", "Female"], {
-    required_error: "Gender is required",
-  }),
-  phone: z
-    .string()
-    .min(10, "Must be 10 digits")
-    .max(10, "Must be 10 digits")
-    .regex(/^[0-9]+$/, "Only digits allowed"),
-  description: z.string().min(1, "Description is required"),
+  age: z.coerce.number().min(1, "Must be at least 1").max(120, "Too old"),
+  gender: z.enum(["Male", "Female"]),
+  phone: z.string().min(10).max(10).regex(/^[0-9]+$/, "Only digits allowed"),
+  description: z.string().min(1, "Goals / Description is required"),
+});
+
+const mentorSchema = z.object({
+  name: z.string().min(1, "Name is required").max(40),
+  age: z.coerce.number().min(1, "Must be at least 1").max(120, "Too old"),
+  gender: z.enum(["Male", "Female"]),
+  phone: z.string().min(10).max(10).regex(/^[0-9]+$/, "Only digits allowed"),
+  specialization: z.string().min(1, "Specialization is required"),
+  experience: z.string().min(1, "Experience is required"),
+  bio: z.string().min(1, "Bio is required"),
+  status: z.enum(["Active", "Away"]),
 });
 
 const Account = () => {
@@ -96,412 +79,426 @@ const Account = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(false);
 
-  const { role } = useUserStore();
+  const { user } = useUserStore();
+  const currentRole = user?.role || localStorage.getItem("role") || "student";
+  const isMentor = currentRole === "mentor";
 
   const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      name: "",
-      age: "",
-      gender: "",
-      phone: "",
-      description: "",
-    },
+    resolver: zodResolver(isMentor ? mentorSchema : studentSchema),
+    defaultValues: isMentor
+      ? {
+          name: "",
+          age: 30,
+          gender: "Male",
+          phone: "9999999999",
+          specialization: "React",
+          experience: "5+ years",
+          bio: "",
+          status: "Active",
+        }
+      : {
+          name: "",
+          age: 22,
+          gender: "Male",
+          phone: "9999999999",
+          description: "",
+        },
   });
 
-  const onSubmit = async (data) => {
+  const fetchData = async () => {
     try {
-      const res = await api.post("/patient", data);
-      setDetails(res.data.data);
-      toast.success("Profile updated successfully!");
-      setOpen(false);
+      setLoading(true);
+      if (isMentor) {
+        const res = await api.get("/mentor/profile");
+        setDetails(res.data.data || {});
+      } else {
+        const res = await api.get("/student");
+        setDetails(res.data.data || {});
+      }
+
+      const appoint = await api.get("/appointment");
+      setAppointments(appoint.data.data || []);
     } catch (err) {
-      toast.error(
-        err.response?.data?.errors?.[0] || "Failed to update profile"
-      );
+      if (err.response?.status !== 404) {
+        toast.error(err.response?.data?.message || "Error fetching your profile");
+      } else {
+        setAlert(true);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get("/patient");
-        setDetails(res.data.data);
-
-        const appoint = await api.get("/appointment");
-        setAppointments(appoint.data.data);
-      } catch (err) {
-        if (err.response?.status !== 404) {
-          toast.error(
-            err.response?.data?.message || "Error fetching your data"
-          );
-        } else {
-          setAlert(true);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [currentRole]);
 
   useEffect(() => {
-    form.reset({
-      name: details.name || "",
-      age: details.age || "",
-      gender: details.gender || "",
-      phone: details.phone || "",
-      description: details.description || "",
-    });
-  }, [details]);
+    if (details) {
+      if (isMentor) {
+        form.reset({
+          name: details.name || "",
+          age: details.age || 30,
+          gender: details.gender || "Male",
+          phone: details.phone || "9999999999",
+          specialization: details.specialization || "React",
+          experience: details.experience || "5+ years",
+          bio: details.bio || "",
+          status: details.status || "Active",
+        });
+      } else {
+        form.reset({
+          name: details.name || "",
+          age: details.age || 22,
+          gender: details.gender || "Male",
+          phone: details.phone || "9999999999",
+          description: details.description || "",
+        });
+      }
+    }
+  }, [details, isMentor]);
+
+  const onSubmit = async (data) => {
+    try {
+      if (isMentor) {
+        const res = await api.put("/mentor/profile", data);
+        setDetails(res.data.data);
+        toast.success("Mentor profile updated successfully!");
+      } else {
+        const res = await api.post("/student", data);
+        setDetails(res.data.data);
+        toast.success("Student profile updated successfully!");
+      }
+      setOpen(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.response?.data?.errors?.[0] || "Failed to update profile");
+    }
+  };
+
+  const toggleMentorStatus = async () => {
+    if (!isMentor) return;
+    const newStatus = details.status === "Active" ? "Away" : "Active";
+    try {
+      const res = await api.put("/mentor/profile", { ...details, status: newStatus });
+      setDetails(res.data.data);
+      toast.success(`Availability status set to ${newStatus}`);
+    } catch (err) {
+      toast.error("Failed to update status");
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-background text-foreground">
-      <div className="w-full max-w-4xl p-4 flex flex-col gap-3">
-        {alert && (
-          <Alert className="mb-1 shadow-sm border border-destructive/30 bg-destructive/10 dark:bg-destructive/20 dark:border-destructive/50 text-destructive">
-            <Siren className="h-6 w-6 mr-2 text-destructive" />
-            <AlertTitle>Patient Record not Found</AlertTitle>
-            <AlertDescription>
-              Create an account to avail services
+    <div className="max-w-6xl mx-auto space-y-8">
+      {alert && !isMentor && (
+        <Alert className="glass-card border-amber-500/40 text-amber-300 rounded-3xl p-6">
+          <Siren className="h-6 w-6 text-amber-400 shrink-0" />
+          <div className="w-full">
+            <AlertTitle className="font-bold text-white">Student Record Not Found</AlertTitle>
+            <AlertDescription className="text-sm text-slate-300">
+              Complete your student profile below to start booking mentorship sessions.
             </AlertDescription>
-          </Alert>
-        )}
-
-        {loading ? (
-          <div className="flex justify-center items-center min-h-[500px]">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-gray-500">Loading your profile...</p>
-            </div>
           </div>
-        ) : (
-          <>
-            <div className="flex gap-3">
-              <Card className="w-full lg:w-3/8">
-                <CardContent className="flex flex-col items-center gap-2">
-                  <Avatar className="w-32 h-32">
-                    <AvatarImage src="#" />
-                    <AvatarFallback className="text-3xl">N/A</AvatarFallback>
-                  </Avatar>
-                  <h1 className="text-2xl">Your Profile</h1>
-                  <div className="flex gap-1">
-                    <p>ID:</p>
-                    <Badge
-                      variant="secondary"
-                      className="text-zinc-500 flex items-center gap-1 cursor-pointer"
-                      onClick={() => {
-                        if (details.patientID) {
-                          navigator.clipboard.writeText(details.patientID);
-                          toast.success("Copied to clipboard");
-                        }
-                      }}
-                    >
-                      <TooltipProvider>
-                        <Tooltip delayDuration={300}>
-                          <TooltipTrigger asChild>
-                            <div className="flex gap-1 not-hover:text-transparent">
-                              {details.patientID || "Invalid"}
-                              {details.patientID && (
-                                <Copy className="h-4 w-4 ml-1" />
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>This is your unique ID </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </Badge>
-                  </div>
+        </Alert>
+      )}
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+          <p className="text-slate-400 font-bold text-sm">Loading profile data...</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Profile Overview Card & Edit Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="glass-card rounded-3xl p-6 border border-white/10 text-center space-y-6 flex flex-col items-center justify-center">
+              <Avatar className="w-28 h-28 border-4 border-indigo-500/30 shadow-xl">
+                <AvatarFallback className="text-2xl font-extrabold bg-gradient-to-br from-indigo-600 to-purple-600 text-white">
+                  {details.name
+                    ? details.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                    : isMentor
+                    ? "M"
+                    : "S"}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="space-y-1">
+                <h1 className="text-2xl font-extrabold text-white">
+                  {details.name || (isMentor ? "Mentor" : "Student")}
+                </h1>
+                <p className="text-xs font-bold text-indigo-400">
+                  {isMentor ? details.specialization || "Tech Mentor" : "Student Account"}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={`font-bold text-xs px-3.5 py-1 rounded-full ${
+                    isMentor
+                      ? details.status === "Active"
+                        ? "badge-glowing"
+                        : "bg-slate-800 text-slate-400 border border-slate-700"
+                      : "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
+                  }`}
+                >
+                  {isMentor ? `Status: ${details.status || "Active"}` : "Role: Student"}
+                </Badge>
+
+                {isMentor && (
                   <Button
-                    variant={"outline"}
-                    className={"mt-2.5 justify-self-end"}
+                    size="sm"
+                    variant="outline"
+                    onClick={toggleMentorStatus}
+                    className="border-white/10 bg-slate-900/60 hover:bg-white/10 text-white font-bold text-xs rounded-full px-3"
                   >
-                    Upload Picture
+                    Toggle {details.status === "Active" ? "Away" : "Active"}
                   </Button>
-                </CardContent>
-              </Card>
-              <Card className="w-full lg:w-5/8 px-2">
-                <CardHeader>
-                  <CardTitle>Your Patient Details</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <p className="font-semibold w-3/8">Full Name</p>
-                    <p className="text-zinc-400 w-5/8">
-                      {details.name || "N/A"}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div className="flex gap-2">
-                    <p className="font-semibold w-3/8">Age</p>
-                    <p className="text-zinc-400 w-5/8">
-                      {details.age || "N/A"}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div className="flex gap-2">
-                    <p className="font-semibold w-3/8">Gender</p>
-                    <p className="text-zinc-400 w-5/8">
-                      {details.gender || "N/A"}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div className="flex gap-2">
-                    <p className="font-semibold w-3/8">Phone</p>
-                    <p className="text-zinc-400 w-5/8">
-                      {details.phone || "N/A"}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div className="flex items-start gap-2">
-                    <p className="font-semibold w-3/8">Medical Description</p>
-                    <div className="flex justify-between items-center gap-1 w-5/8">
-                      <p className="text-zinc-400 truncate max-w-[250px]">
-                        {details.description || "N/A"}
-                      </p>
-                      {details.description && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="transition-colors rounded-sm border border-border shadow-sm hover:bg-muted hover:text-foreground hover:shadow-md p-1">
-                              <Ellipsis className="w-4 h-4" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="max-w-sm max-h-48 overflow-y-auto text-sm bg-popover text-popover-foreground border border-border shadow-lg">
-                            {details.description}
-                          </PopoverContent>
-                        </Popover>
-                      )}
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between mt-3">
-                    <Dialog open={open} onOpenChange={setOpen}>
-                      <DialogTrigger asChild>
-                        <Button className="font-semibold">Edit Details</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogTitle>Edit Details</DialogTitle>
-                        <DialogDescription>
-                          Make Changes to your profile here and click save to
-                          update.
-                        </DialogDescription>
-                        <Form {...form}>
-                          <form
-                            className="mt-3 space-y-5 px-2"
-                            onSubmit={form.handleSubmit(onSubmit)}
-                          >
-                            {/* Name & Age */}
-                            <div className="flex flex-col md:flex-row gap-4">
-                              <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                  <FormItem className="w-full md:w-4/5 space-y-1.5">
-                                    <FormLabel>Patient Name</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Ex: John Doe"
-                                        maxLength={40}
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="age"
-                                render={({ field }) => (
-                                  <FormItem className="w-full md:w-1/5 space-y-1.5">
-                                    <FormLabel>Age</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        min={1}
-                                        max={120}
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                )}
+              </div>
+            </Card>
 
-                            {/* Gender & Phone */}
-                            <div className="flex flex-col md:flex-row gap-4">
-                              <FormField
-                                control={form.control}
-                                name="gender"
-                                render={({ field }) => (
-                                  <FormItem className="w-full md:w-1/3 space-y-1.5">
-                                    <FormLabel>Gender</FormLabel>
-                                    <Select
-                                      value={field.value}
-                                      onValueChange={field.onChange}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger
-                                          id="gender"
-                                          className="w-full"
-                                        >
-                                          <SelectValue placeholder="Select Gender" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectGroup>
-                                          <SelectItem value="Male">
-                                            Male
-                                          </SelectItem>
-                                          <SelectItem value="Female">
-                                            Female
-                                          </SelectItem>
-                                        </SelectGroup>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="phone"
-                                render={({ field }) => (
-                                  <FormItem className="w-full md:w-2/3 space-y-1.5">
-                                    <FormLabel>Phone Number</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="text"
-                                        maxLength={10}
-                                        placeholder="9876543210"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+            {/* Profile Details Card */}
+            <Card className="glass-card rounded-3xl p-8 border border-white/10 lg:col-span-2 space-y-6 flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 text-indigo-400" /> Account Details
+                  </h2>
 
-                            {/* Description */}
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="btn-gradient font-bold rounded-xl text-xs px-4">
+                        Edit Profile
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-slate-950 border border-white/10 text-white rounded-3xl p-6 max-w-lg">
+                      <DialogTitle className="text-xl font-extrabold">
+                        {isMentor ? "Update Mentor Profile" : "Update Student Profile"}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs text-slate-400">
+                        Update your public information and mentorship availability.
+                      </DialogDescription>
+
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-slate-300 font-semibold text-xs">Full Name</FormLabel>
+                                <FormControl>
+                                  <Input className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-2 gap-4">
                             <FormField
                               control={form.control}
-                              name="description"
+                              name="phone"
                               render={({ field }) => (
-                                <FormItem className="space-y-1.5">
-                                  <FormLabel>Description</FormLabel>
+                                <FormItem>
+                                  <FormLabel className="text-slate-300 font-semibold text-xs">Phone Number</FormLabel>
                                   <FormControl>
-                                    <Textarea
-                                      placeholder="Enter medical description"
-                                      className="min-h-[120px]"
-                                      {...field}
-                                    />
+                                    <Input className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
 
-                            {/* Submit */}
-                            <DialogFooter>
-                              <div className="flex justify-end">
-                                <Button
-                                  type="submit"
-                                  className="font-semibold px-6 py-2"
-                                  disabled={form.formState.isSubmitting}
-                                >
-                                  {form.formState.isSubmitting ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                      Updating...
-                                    </>
-                                  ) : (
-                                    "Update"
-                                  )}
-                                </Button>
-                              </div>
-                            </DialogFooter>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
-                    {(role === "doctor" || role === "admin") && (
-                      <Link to={`/${role}`}>
-                        <Button variant={"outline"} className={"font-semibold"}>
-                          {role.charAt(0).toUpperCase() + role.slice(1)}{" "}
-                          Dashboard
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                            <FormField
+                              control={form.control}
+                              name="gender"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-slate-300 font-semibold text-xs">Gender</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm">
+                                        <SelectValue placeholder="Select Gender" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-slate-900 border-white/10 text-white">
+                                      <SelectItem value="Male">Male</SelectItem>
+                                      <SelectItem value="Female">Female</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Appointment History</CardTitle>
-                <CardDescription>
-                  View all your recent appointments here
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableCaption>A list of appointments</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>TimeSlot</TableHead>
-                      <TableHead>Doctor</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Reason</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {appointments.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6">
-                          <p className="text-muted-foreground">
-                            No appointments found
-                          </p>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      appointments.map((appointment) => (
-                        <TableRow key={appointment._id}>
-                          <TableCell>
-                            {format(appointment.date, "do MMMM yyyy")}
-                          </TableCell>
-                          <TableCell>{appointment.timeSlot}</TableCell>
-                          <TableCell>{appointment.doctorID.name}</TableCell>
-                          <TableCell>{appointment.status}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <button className="text-left w-full truncate">
-                                  {appointment.reason}
-                                </button>
-                              </HoverCardTrigger>
-                              <HoverCardContent className="max-w-sm text-sm">
-                                {appointment.reason}
-                              </HoverCardContent>
-                            </HoverCard>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
+                          {isMentor ? (
+                            <>
+                              <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="specialization"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-slate-300 font-semibold text-xs">Domain Specialization</FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="React / System Design" className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={form.control}
+                                  name="experience"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-slate-300 font-semibold text-xs">Experience</FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="5+ years" className="bg-slate-900 border-white/10 text-white rounded-xl h-10 text-sm" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <FormField
+                                control={form.control}
+                                name="bio"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-slate-300 font-semibold text-xs">Mentor Bio</FormLabel>
+                                    <FormControl>
+                                      <Textarea placeholder="Senior Software Engineer..." className="bg-slate-900 border-white/10 text-white rounded-xl text-sm" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </>
+                          ) : (
+                            <FormField
+                              control={form.control}
+                              name="description"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-slate-300 font-semibold text-xs">Learning Goals / Bio</FormLabel>
+                                  <FormControl>
+                                    <Textarea placeholder="Targeting Full Stack Engineering offers..." className="bg-slate-900 border-white/10 text-white rounded-xl text-sm" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+
+                          <DialogFooter className="pt-4">
+                            <Button type="submit" className="btn-gradient font-bold w-full rounded-xl">
+                              Save Changes
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
+                    <span className="text-xs font-bold text-slate-400 uppercase">Phone</span>
+                    <p className="font-bold text-white">{details.phone || "Not set"}</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
+                    <span className="text-xs font-bold text-slate-400 uppercase">Gender</span>
+                    <p className="font-bold text-white">{details.gender || "Not set"}</p>
+                  </div>
+
+                  {isMentor ? (
+                    <>
+                      <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
+                        <span className="text-xs font-bold text-slate-400 uppercase">Experience</span>
+                        <p className="font-bold text-indigo-400">{details.experience || "5+ years"}</p>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1">
+                        <span className="text-xs font-bold text-slate-400 uppercase">Specialization</span>
+                        <p className="font-bold text-purple-400">{details.specialization || "Tech Mentor"}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-4 rounded-2xl bg-slate-900/50 border border-white/5 space-y-1 md:col-span-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase">Learning Target</span>
+                      <p className="font-bold text-indigo-300">{details.description || "Full Stack Engineering & Career Growth"}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </Card>
-          </>
-        )}
-      </div>
+          </div>
+
+          {/* Session History Table */}
+          <div className="glass-card rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-6 space-y-4">
+            <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-indigo-400" /> Session History & Bookings
+            </h3>
+
+            <Table>
+              <TableHeader className="bg-slate-900/80 border-b border-white/10">
+                <TableRow>
+                  <TableHead className="font-bold text-slate-300">Date</TableHead>
+                  <TableHead className="font-bold text-slate-300">Slot</TableHead>
+                  <TableHead className="font-bold text-slate-300">Goal / Topic</TableHead>
+                  <TableHead className="font-bold text-slate-300">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {appointments.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-slate-400 italic text-sm">
+                      No session records found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  appointments.map((appt) => (
+                    <TableRow key={appt._id} className="hover:bg-white/5 border-b border-white/5">
+                      <TableCell className="font-semibold text-slate-300 text-sm">
+                        {format(new Date(appt.date), "dd MMM yyyy")}
+                      </TableCell>
+                      <TableCell className="font-bold text-indigo-400 text-sm">
+                        {appt.timeSlot}
+                      </TableCell>
+                      <TableCell className="font-medium text-white text-sm">
+                        {appt.reason}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`font-bold text-xs px-3 py-1 rounded-full ${
+                            appt.status === "Completed"
+                              ? "badge-glowing"
+                              : appt.status === "Accepted"
+                              ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                              : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          }`}
+                        >
+                          {appt.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../middlewares/authMiddleware.js";
+import { authenticate, authorizeStudent, authorizeMentor } from "../middlewares/authMiddleware.js";
 import {
   getAppointment,
   createAppointment,
@@ -8,7 +8,7 @@ import {
 import { body } from "express-validator";
 
 const validation = [
-  body("doctorID").isMongoId().withMessage("Invalid doctor ID"),
+  body("mentorID").isMongoId().withMessage("Invalid mentor ID"),
   body("date")
     .isISO8601()
     .withMessage("Date must be in YYYY-MM-DD format")
@@ -36,10 +36,10 @@ const validation = [
 
 const router = express.Router();
 
-router.get("/", verifyToken, getAppointment);
+router.get("/", authenticate, getAppointment);
 
-router.post("/", verifyToken, validation, createAppointment);
+router.post("/", authenticate, authorizeStudent, validation, createAppointment);
 
-router.put("/:id", verifyToken, validation, updateAppointment);
+router.put("/:id", authenticate, authorizeMentor, updateAppointment);
 
 export default router;

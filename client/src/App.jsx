@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
-// Lazy load all page components
+// Lazy load page components
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
 const SignupPage = React.lazy(() => import("./pages/SignupPage"));
 const LandingPage = React.lazy(() => import("./pages/LandingPage"));
@@ -9,26 +9,16 @@ const Home = React.lazy(() => import("./pages/Home"));
 const Profile = React.lazy(() => import("./pages/Account"));
 const SidebarLayout = React.lazy(() => import("./components/SidebarLayout"));
 const ProtectedRoute = React.lazy(() => import("./components/ProtectedRoute"));
-const Doctors = React.lazy(() => import("./pages/Doctors"));
+const Mentors = React.lazy(() => import("./pages/Mentors"));
 const Support = React.lazy(() => import("./pages/Support"));
 const Services = React.lazy(() => import("./pages/Services"));
 const Transactions = React.lazy(() => import("./pages/Transactions"));
 
-// Admin nested pages
-const Analytics = React.lazy(() => import("./pages/admin/Analytics"));
-const UserManagement = React.lazy(() => import("./pages/admin/UserManagement"));
-const Appointments = React.lazy(() => import("./pages/admin/Appointments"));
-const AdminTransactions = React.lazy(
-  () => import("./pages/admin/Transactions"),
+// Mentor nested pages
+const MentorHome = React.lazy(() => import("./pages/mentor/MentorHome"));
+const MentorAppointments = React.lazy(
+  () => import("./pages/mentor/Appointments")
 );
-const AdminHome = React.lazy(() => import("./pages/admin/AdminHome"));
-
-// Doctor nested pages
-const DoctorHome = React.lazy(() => import("./pages/doctor/DoctorHome"));
-const DoctorAppointments = React.lazy(
-  () => import("./pages/doctor/Appointments"),
-);
-const Prediction = React.lazy(() => import("./pages/Prediction"));
 const Error = React.lazy(() => import("./pages/Error"));
 
 // Loading component with spinner
@@ -39,7 +29,7 @@ const LoadingSpinner = () => (
       justifyContent: "center",
       alignItems: "center",
       height: "100vh",
-      backgroundColor: "#f5f5f5",
+      backgroundColor: "#f8fafc",
     }}
   >
     <div style={{ textAlign: "center" }}>
@@ -47,15 +37,15 @@ const LoadingSpinner = () => (
         style={{
           width: "50px",
           height: "50px",
-          border: "4px solid #e0e0e0",
-          borderTop: "4px solid #3b82f6",
+          border: "4px solid #e2e8f0",
+          borderTop: "4px solid #4f46e5",
           borderRadius: "50%",
           animation: "spin 1s linear infinite",
           margin: "0 auto 16px",
         }}
       />
-      <p style={{ color: "#666", fontSize: "14px", fontWeight: "500" }}>
-        Loading...
+      <p style={{ color: "#475569", fontSize: "14px", fontWeight: "600" }}>
+        Loading MentorSpace...
       </p>
       <style>
         {`
@@ -72,62 +62,55 @@ const App = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Public landing page as default */}
+        {/* Public landing page */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* Protected user routes */}
+        {/* Protected Student-only routes */}
         <Route
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProtectedRoute roles={["admin", "patient", "doctor", "user"]}>
+              <ProtectedRoute roles={["student"]}>
                 <SidebarLayout />
               </ProtectedRoute>
             </Suspense>
           }
         >
           <Route path="/home" element={<Home />} />
-          <Route path="/account" element={<Profile />} />
-          <Route path="/doctors" element={<Doctors />} />
-          <Route path="/support" element={<Support />} />
+          <Route path="/mentors" element={<Mentors />} />
           <Route path="/services" element={<Services />} />
           <Route path="/transactions" element={<Transactions />} />
-          <Route path="/predictor" element={<Prediction />} />
         </Route>
 
-        {/* Admin-only routes */}
+        {/* Protected Mentor-only routes */}
         <Route
-          path="/admin"
+          path="/mentor"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProtectedRoute roles={["admin"]}>
+              <ProtectedRoute roles={["mentor"]}>
                 <SidebarLayout />
               </ProtectedRoute>
             </Suspense>
           }
         >
-          <Route path="" element={<AdminHome />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="appointments" element={<Appointments />} />
-          <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="" element={<MentorHome />} />
+          <Route path="appointments" element={<MentorAppointments />} />
         </Route>
 
-        {/* Doctor-only routes */}
+        {/* Protected Dual-role routes (Accessible by both Student and Mentor) */}
         <Route
-          path="/doctor"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <ProtectedRoute roles={["doctor", "admin"]}>
+              <ProtectedRoute roles={["student", "mentor"]}>
                 <SidebarLayout />
               </ProtectedRoute>
             </Suspense>
           }
         >
-          <Route path="" element={<DoctorHome />} />
-          <Route path="appointments" element={<DoctorAppointments />} />
+          <Route path="/account" element={<Profile />} />
+          <Route path="/support" element={<Support />} />
         </Route>
 
-        {/* Public routes */}
+        {/* Public auth & error routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignupPage />} />
         <Route path="*" element={<Error />} />

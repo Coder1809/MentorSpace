@@ -37,8 +37,8 @@ router.post(
       .withMessage("Invalid email format")
       .normalizeEmail(),
     body("password")
-      .isLength({ min: 8 })
-      .withMessage("Password must be atleast 8 characters"),
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
     body("cnfpass").custom((value, { req }) => {
       if (value != req.body.password) {
         throw new Error("Passwords don't match");
@@ -58,8 +58,8 @@ router.post(
       .withMessage("Invalid email format")
       .normalizeEmail(),
     body("password")
-      .isLength({ min: 8 })
-      .withMessage("Password must be atleast 8 characters"),
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
   ],
   loginUser
 );

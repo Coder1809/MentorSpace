@@ -1,5 +1,5 @@
 import React from "react";
-import { Phone, Mail, MapPin, ShieldAlert, HelpCircle } from "lucide-react";
+import { Mail, MapPin, Headphones, HelpCircle, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -11,48 +11,50 @@ import {
 
 const Support = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center py-10 px-4 space-y-10">
-      <Card className="w-full max-w-3xl shadow-md bg-card text-foreground">
-        <CardContent className="py-6 space-y-5">
-          <h1 className="text-3xl font-semibold text-center text-primary">
-            Support & Help
-          </h1>
-          <p className="text-muted-foreground text-center">
-            We're here to assist you. Reach out to us through the contacts
-            below.
-          </p>
-          <Separator />
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <ShieldAlert className="text-destructive w-6 h-6" />
+    <div className="max-w-4xl mx-auto space-y-8">
+      <Card className="glass-card rounded-3xl border border-white/10 p-6 sm:p-8">
+        <CardContent className="p-0 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-extrabold text-white">
+              MentorSpace <span className="gradient-text">Help & Support</span>
+            </h1>
+            <p className="text-slate-400 text-sm">
+              Have questions about booking sessions, Razorpay payment verification, or mentor onboarding? We're here to help.
+            </p>
+          </div>
+
+          <Separator className="bg-white/10" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-white/5">
+              <Headphones className="text-indigo-400 w-6 h-6 shrink-0" />
               <div>
-                <p className="font-semibold text-destructive">
-                  Emergency Helpline
-                </p>
-                <p className="text-muted-foreground">+91 911-100-1000</p>
+                <p className="font-bold text-white text-sm">Student Support Hotline</p>
+                <p className="text-xs text-slate-400">+91 98765-43210</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Phone className="text-blue-500 dark:text-blue-400 w-6 h-6" />
+
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-white/5">
+              <Mail className="text-emerald-400 w-6 h-6 shrink-0" />
               <div>
-                <p className="font-semibold">General Inquiry</p>
-                <p className="text-muted-foreground">+91 98765-43210</p>
+                <p className="font-bold text-white text-sm">Email Support</p>
+                <p className="text-xs text-slate-400">support@mentorspace.io</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="text-green-500 dark:text-green-400 w-6 h-6" />
+
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-white/5">
+              <MessageSquare className="text-purple-400 w-6 h-6 shrink-0" />
               <div>
-                <p className="font-semibold">Email Support</p>
-                <p className="text-muted-foreground">support@healthhub.com</p>
+                <p className="font-bold text-white text-sm">Mentor Onboarding</p>
+                <p className="text-xs text-slate-400">mentors@mentorspace.io</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <MapPin className="text-purple-500 dark:text-purple-400 w-6 h-6" />
+
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-white/5">
+              <MapPin className="text-amber-400 w-6 h-6 shrink-0" />
               <div>
-                <p className="font-semibold">Hospital Address</p>
-                <p className="text-muted-foreground">
-                  HealthHub Hospital, Main Street, Hyderabad
-                </p>
+                <p className="font-bold text-white text-sm">Headquarters</p>
+                <p className="text-xs text-slate-400">MentorSpace Tech Hub, Bangalore</p>
               </div>
             </div>
           </div>
@@ -60,47 +62,38 @@ const Support = () => {
       </Card>
 
       {/* FAQ Section */}
-      <Card className="w-full max-w-3xl shadow-md bg-card text-foreground">
-        <CardContent className="py-6 space-y-5">
-          <div className="flex items-center gap-2 justify-center">
-            <HelpCircle className="text-yellow-500 w-6 h-6" />
-            <h2 className="text-2xl font-semibold text-primary">
-              Frequently Asked Questions
-            </h2>
+      <Card className="glass-card rounded-3xl border border-white/10 p-6 sm:p-8 space-y-6">
+        <CardContent className="p-0 space-y-6">
+          <div className="flex items-center gap-2 justify-center text-center">
+            <HelpCircle className="w-6 h-6 text-indigo-400" />
+            <h2 className="text-2xl font-extrabold text-white">Frequently Asked Questions</h2>
           </div>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>How do I book an appointment?</AccordionTrigger>
-              <AccordionContent>
-                You can book an appointment through the "Appointments" page once
-                your patient profile is set up.
+
+          <Accordion type="single" collapsible className="w-full space-y-2">
+            <AccordionItem value="item-1" className="border-b border-white/10">
+              <AccordionTrigger className="text-white font-bold text-sm hover:no-underline hover:text-indigo-400">
+                How do 1-on-1 mentorship sessions work?
+              </AccordionTrigger>
+              <AccordionContent className="text-slate-400 text-xs leading-relaxed">
+                Select your preferred mentor from the directory, choose a date, timeslot, and goal topic. Complete payment via Razorpay, and join your scheduled live session.
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>
-                Can I reschedule or cancel my booking?
+
+            <AccordionItem value="item-2" className="border-b border-white/10">
+              <AccordionTrigger className="text-white font-bold text-sm hover:no-underline hover:text-indigo-400">
+                How are payments verified?
               </AccordionTrigger>
-              <AccordionContent>
-                Yes, you can reschedule or cancel through your appointment
-                dashboard up to 24 hours in advance.
+              <AccordionContent className="text-slate-400 text-xs leading-relaxed">
+                All session payments are authorized via Razorpay interactive checkout. Backend HMAC SHA-256 signatures are verified before session bookings are confirmed.
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>
-                What if I can't find my doctor?
+
+            <AccordionItem value="item-3" className="border-b border-white/10">
+              <AccordionTrigger className="text-white font-bold text-sm hover:no-underline hover:text-indigo-400">
+                Can I reschedule or request a status update?
               </AccordionTrigger>
-              <AccordionContent>
-                Please contact general support at +91 98765-43210 for help in
-                locating or assigning a doctor.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-4">
-              <AccordionTrigger>
-                How do I update my profile or medical history?
-              </AccordionTrigger>
-              <AccordionContent>
-                Go to your account page and update your personal and health
-                information as needed.
+              <AccordionContent className="text-slate-400 text-xs leading-relaxed">
+                Yes, mentors can accept or reschedule requests from their appointment console, and students can view session statuses under My Appointments.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

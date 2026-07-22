@@ -2,12 +2,13 @@ import * as React from "react";
 import {
   DollarSign,
   Home,
-  ShieldPlus,
   UsersRound,
-  BarChart3,
   CalendarCheck,
-  ClipboardPlus,
-  Brain,
+  GraduationCap,
+  User,
+  Clock,
+  BookOpen,
+  Sparkles,
 } from "lucide-react";
 import { DatePicker } from "@/components/date-picker";
 import { NavUser } from "@/components/nav-user";
@@ -24,70 +25,61 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
-import useAdminStore from "@/store/adminStore";
-import { useEffect } from "react";
+import { useUserStore } from "@/store/userStore";
 
-const hospital = {
-  name: "NeoCure Hospital",
-  desc: "World Class Hospital",
-  avatar: "/favicon.png",
+const mentorspaceInfo = {
+  name: "MentorSpace",
+  desc: "1-on-1 Mentorship Platform",
 };
 
 const sidebarConfig = {
-  admin: [
-    { title: "Dashboard", url: "/admin", icon: Home },
-    { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
-    { title: "User Management", url: "/admin/users", icon: UsersRound },
-    { title: "Appointments", url: "/admin/appointments", icon: ClipboardPlus },
-    { title: "Transactions", url: "/admin/transactions", icon: DollarSign },
+  mentor: [
+    { title: "Dashboard", url: "/mentor", icon: Home },
+    { title: "Booking Requests", url: "/mentor/appointments", icon: CalendarCheck },
+    { title: "Sessions", url: "/mentor/appointments", icon: Clock },
+    { title: "Profile", url: "/account", icon: User },
   ],
-  doctor: [
-    { title: "Dashboard", url: "/doctor", icon: Home },
-    { title: "Appointments", url: "/doctor/appointments", icon: CalendarCheck },
-  ],
-  user: [
-    { title: "Dashboard", url: "/home", icon: Home },
-    { title: "Our Doctors", url: "/doctors", icon: UsersRound },
-    { title: "Services", url: "/services", icon: ShieldPlus },
+  student: [
+    { title: "Home", url: "/home", icon: Home },
+    { title: "Mentors Directory", url: "/mentors", icon: UsersRound },
+    { title: "Packages & Tracks", url: "/services", icon: BookOpen },
+    { title: "My Appointments", url: "/account", icon: CalendarCheck },
     { title: "Transactions", url: "/transactions", icon: DollarSign },
-    { title: "AI Disease Predictor", url: "/predictor", icon: Brain },
+    { title: "Profile", url: "/account", icon: User },
   ],
 };
 
 export function AppSidebar() {
   const location = useLocation();
-  const { fetchAll } = useAdminStore();
-
-  // Determine section from pathname
+  const { user } = useUserStore();
   const path = location.pathname;
-  const isDoctor = path.split("/")[1] === "doctor";
-  const isAdmin = path.split("/")[1] === "admin";
-  const currentMenu = isAdmin ? "admin" : isDoctor ? "doctor" : "user";
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchAll();
-    }
-  }, [isAdmin, fetchAll]);
-
-  const items = sidebarConfig[currentMenu] || [];
+  const role = user?.role || localStorage.getItem("role") || "student";
+  const currentMenu = role === "mentor" || path.startsWith("/mentor") ? "mentor" : "student";
+  const items = sidebarConfig[currentMenu] || sidebarConfig.student;
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-sidebar-border h-16 border-b">
+    <Sidebar className="border-r border-[#E5E7EB] bg-white">
+      <SidebarHeader className="border-[#E5E7EB] h-16 border-b px-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg">
-              <Link to="/home">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={hospital.avatar} alt={hospital.name} />
-                  <AvatarFallback className="rounded-lg">NC</AvatarFallback>
+            <SidebarMenuButton asChild size="lg" className="hover:bg-transparent">
+              <Link to={currentMenu === "mentor" ? "/mentor" : "/home"} className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 rounded-xl bg-[#4CAF7D] text-white flex items-center justify-center font-bold shadow-md shadow-[#4CAF7D]/20">
+                  <GraduationCap className="h-5 w-5 text-white" />
+                  <AvatarFallback className="rounded-xl bg-[#4CAF7D] text-white font-extrabold">
+                    MS
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold">{hospital.name}</span>
-                  <span className="truncate text-xs">{hospital.desc}</span>
+                  <span className="truncate font-extrabold text-[#1F2937] flex items-center gap-1">
+                    {mentorspaceInfo.name} <Sparkles className="w-3 h-3 text-[#F4C95D]" />
+                  </span>
+                  <span className="truncate text-xs font-semibold text-[#4CAF7D]">
+                    {role === "mentor" ? "Mentor Console" : "Student Platform"}
+                  </span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -95,33 +87,38 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2 py-4">
         <DatePicker />
-        <SidebarSeparator className="mx-0" />
+        <SidebarSeparator className="my-3 mx-2" />
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`p-5 font-semibold hover:bg-green-500 hover:text-white transition-all ${
-                      path === item.url ? "bg-green-500 text-white" : ""
-                    }`}
-                  >
-                    <Link to={item.url}>
-                      <item.icon className="mr-2" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="space-y-1">
+              {items.map((item, idx) => {
+                const isActive = path === item.url || (item.url !== "/mentor" && item.url !== "/home" && path.startsWith(item.url));
+                return (
+                  <SidebarMenuItem key={`${item.title}-${idx}`}>
+                    <SidebarMenuButton
+                      asChild
+                      className={`p-3.5 rounded-xl font-bold transition-all text-sm ${
+                        isActive
+                          ? "bg-[#DDF4E7] text-[#2d6a4f] shadow-sm border border-[#4CAF7D]/20"
+                          : "hover:bg-[#DDF4E7]/60 hover:text-[#4CAF7D] text-gray-600"
+                      }`}
+                    >
+                      <Link to={item.url} className="flex items-center gap-3">
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="p-3 border-t border-[#E5E7EB]">
         <NavUser />
       </SidebarFooter>
       <SidebarRail />

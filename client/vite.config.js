@@ -13,7 +13,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": "http://localhost:5000", // Proxies all /api requests to your backend
+      "/api": "http://localhost:8000", // Proxies all /api requests to backend
     },
   },
 });

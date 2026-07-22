@@ -1,10 +1,10 @@
 import express from "express";
 import { body } from "express-validator";
-import { verifyToken } from "../middlewares/authMiddleware.js";
+import { authenticate, authorizeStudent } from "../middlewares/authMiddleware.js";
 import { createRateLimitMiddleware } from "../middlewares/rateLimitMiddleware.js";
 import {
   createOrder,
-  saveTransaction,
+  verifyPayment,
   getTransactions,
 } from "../controllers/paymentController.js";
 
@@ -16,35 +16,8 @@ const validateCreateOrder = [
     .withMessage("Amount is required"),
 ];
 
-const validateSaveTransaction = [
-  body("orderID")
-    .isString()
-    .withMessage("Order ID must be a string")
-    .notEmpty()
-    .withMessage("Order ID is required"),
-  body("paymentID")
-    .isString()
-    .withMessage("Payment ID must be a string")
-    .notEmpty()
-    .withMessage("Payment ID is required"),
-  body("amount")
-    .isNumeric()
-    .withMessage("Amount must be a number")
-    .notEmpty()
-    .withMessage("Amount is required"),
-  body("currency")
-    .optional()
-    .isString()
-    .withMessage("Currency must be a string"),
-  body("receipt").optional().isString().withMessage("Receipt must be a string"),
-  body("status")
-    .isIn(["success", "failed"])
-    .withMessage("Status must be either 'success' or 'failed'"),
-];
-
 const router = express.Router();
 
-// Create rate limit middleware for payment operations
 const paymentRateLimit = createRateLimitMiddleware({
   identifier: "user",
   envKey: "RATE_LIMIT_PAYMENT",
@@ -52,20 +25,30 @@ const paymentRateLimit = createRateLimitMiddleware({
 
 router.post(
   "/create-order",
-  verifyToken,
+  authenticate,
+  authorizeStudent,
   paymentRateLimit,
   validateCreateOrder,
   createOrder
 );
 
 router.post(
-  "/save-transaction",
-  verifyToken,
+  "/verify",
+  authenticate,
+  authorizeStudent,
   paymentRateLimit,
-  validateSaveTransaction,
-  saveTransaction
+  verifyPayment
 );
 
-router.get("/", verifyToken, paymentRateLimit, getTransactions);
+// Fallback compatibility route for save-transaction
+router.post(
+  "/save-transaction",
+  authenticate,
+  authorizeStudent,
+  paymentRateLimit,
+  verifyPayment
+);
+
+router.get("/", authenticate, paymentRateLimit, getTransactions);
 
 export default router;
