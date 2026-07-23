@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, CalendarDays } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -55,11 +55,21 @@ const AppointmentDialog = ({
   appointment,
   mode = "create",
 }) => {
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
   const isEdit = mode === "edit";
 
   const handleSubmit = async (values) => {
     try {
+      if (!values.date) {
+        toast.error("Please select a session date");
+        return;
+      }
+      if (!values.timeSlot) {
+        toast.error("Please select a time slot");
+        return;
+      }
+
       if (isEdit) {
         await api.put(`/appointment/${appointment._id}`, values);
         toast.success("Session rescheduled successfully");
@@ -75,7 +85,7 @@ const AppointmentDialog = ({
       }
 
       // Step 1: Create Razorpay Order via Backend SDK
-      const amount = 1499; // Standard 1-on-1 Mentorship Fee
+      const amount = selectedMentor?.price || 1499;
       const { data } = await api.post("/payment/create-order", { amount });
 
       if (!data.success || !data.order) {
@@ -86,7 +96,7 @@ const AppointmentDialog = ({
       const verifyAndComplete = async (paymentDetails) => {
         const verifyRes = await api.post("/payment/verify", {
           ...paymentDetails,
-          mentorID: values.mentorID,
+          mentorID: selectedMentor?._id || values.mentorID,
           date: values.date,
           timeSlot: values.timeSlot,
           reason: values.reason,
@@ -128,7 +138,7 @@ const AppointmentDialog = ({
           contact: "9876543210",
         },
         theme: {
-          color: "#4f46e5",
+          color: "#4CAF7D",
         },
       };
 
@@ -142,80 +152,114 @@ const AppointmentDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="bg-white border border-[#E5E7EB] text-[#1F2937] rounded-3xl p-6 sm:p-8 max-w-lg shadow-xl">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-extrabold text-[#1F2937]">
             {isEdit ? "Reschedule Mentorship Session" : "Book Mentorship Session"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm text-gray-500">
             {selectedMentor
-              ? `Booking session with Mentor ${selectedMentor.name} (${selectedMentor.specialization || "Tech Mentor"})`
-              : "Select session date, time slot, and topic."}
+              ? `Booking 1-on-1 session with ${selectedMentor.name} (${selectedMentor.specialization || "Tech Mentor"})`
+              : "Select session date, time slot, and goal topic."}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-5 pt-2"
           >
             <FormField
               control={form.control}
               name="mentorID"
               render={({ field }) => <input type="hidden" {...field} />}
             />
-            <div className="flex flex-col md:flex-row gap-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
               <FormField
                 control={form.control}
                 name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col gap-3 w-1/2">
-                    <FormLabel>Session Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-between font-normal"
-                          >
-                            {field.value
-                              ? field.value.toLocaleDateString()
-                              : "Select date"}
-                            <ChevronDownIcon />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          captionLayout="dropdown"
-                          onSelect={(date) => field.onChange(date)}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? field.value instanceof Date
+                      ? field.value
+                      : new Date(field.value)
+                    : undefined;
+
+                  return (
+                    <FormItem className="flex flex-col gap-2">
+                      <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Session Date
+                      </FormLabel>
+                      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-between font-medium border-[#E5E7EB] bg-[#FAFBF8] text-[#1F2937] rounded-xl h-11 hover:bg-[#DDF4E7]/40 text-sm"
+                            >
+                              <span className="flex items-center gap-2 truncate">
+                                <CalendarDays className="w-4 h-4 text-[#4CAF7D] shrink-0" />
+                                {selectedDate
+                                  ? selectedDate.toLocaleDateString("en-US", {
+                                      weekday: "short",
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    })
+                                  : "Select date"}
+                              </span>
+                              <ChevronDownIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => {
+                              if (date) {
+                                field.onChange(date);
+                                setPopoverOpen(false);
+                              }
+                            }}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              const cellDate = new Date(date);
+                              cellDate.setHours(0, 0, 0, 0);
+                              return cellDate < today;
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
+
               <FormField
                 control={form.control}
                 name="timeSlot"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col gap-3 w-1/2">
-                    <FormLabel>Time Slot</FormLabel>
+                  <FormItem className="flex flex-col gap-2">
+                    <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Time Slot
+                    </FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        value={field.value}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a time slot" />
+                        <SelectTrigger className="w-full border-[#E5E7EB] bg-[#FAFBF8] text-[#1F2937] rounded-xl h-11 text-sm font-medium">
+                          <SelectValue placeholder="Select slot" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Morning">Morning</SelectItem>
-                          <SelectItem value="Afternoon">Afternoon</SelectItem>
-                          <SelectItem value="Evening">Evening</SelectItem>
+                        <SelectContent className="bg-white border-[#E5E7EB] text-[#1F2937] rounded-xl">
+                          <SelectItem value="Morning">Morning (9 AM - 12 PM)</SelectItem>
+                          <SelectItem value="Afternoon">Afternoon (2 PM - 5 PM)</SelectItem>
+                          <SelectItem value="Evening">Evening (6 PM - 9 PM)</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -229,11 +273,14 @@ const AppointmentDialog = ({
               control={form.control}
               name="reason"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Session Goal / Discussion Topic</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Session Goal / Topic
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Specify your goals (e.g. System design mock, resume review, DSA problem solving)..."
+                      className="bg-[#FAFBF8] border-[#E5E7EB] text-[#1F2937] rounded-xl text-sm min-h-[90px] focus:border-[#4CAF7D]"
                       {...field}
                     />
                   </FormControl>
@@ -242,9 +289,9 @@ const AppointmentDialog = ({
               )}
             />
 
-            <div className="w-full flex justify-end">
-              <Button type="submit" className="font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">
-                {isEdit ? "Update Session" : "Confirm Booking"}
+            <div className="pt-2">
+              <Button type="submit" className="w-full btn-sage font-bold h-12 rounded-xl text-base shadow-md">
+                {isEdit ? "Update Session" : `Proceed to Payment (₹${selectedMentor?.price || 1499})`}
               </Button>
             </div>
           </form>
