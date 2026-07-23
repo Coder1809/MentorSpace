@@ -77,22 +77,26 @@ const AppointmentDialog = ({
         return;
       }
 
-      // Ensure Razorpay SDK is loaded
+      // STEP 3: Ensure Razorpay SDK script exists on window
       const isLoaded = await loadRazorpayScript();
-      if (!isLoaded || typeof window.Razorpay === "undefined") {
+      if (!isLoaded || typeof window === "undefined" || !window.Razorpay) {
         toast.error("Razorpay SDK failed to load. Please check your internet connection.");
         return;
       }
 
-      // Step 1: Create Razorpay Order via Backend SDK
+      // STEP 2: Call backend POST /api/payment/create-order with amount in rupees
       const amount = selectedMentor?.price || 1499;
       const { data } = await api.post("/payment/create-order", { amount });
 
-      if (!data.success || !data.order) {
-        throw new Error("Order creation failed");
+      if (!data.success || (!data.orderId && !data.order?.id)) {
+        throw new Error(data.message || "Order creation failed");
       }
 
-      // Helper to verify payment signature and store transaction + appointment
+      const orderId = data.orderId || data.order.id;
+      const orderAmount = data.amount || data.order.amount;
+      console.log("Razorpay Order ID received on frontend:", orderId);
+
+      // Helper to verify payment signature and store transaction + appointment in MongoDB
       const verifyAndComplete = async (paymentDetails) => {
         const verifyRes = await api.post("/payment/verify", {
           ...paymentDetails,
@@ -110,21 +114,22 @@ const AppointmentDialog = ({
         }
       };
 
-      // Step 2: Open interactive Razorpay Checkout Modal
+      // STEP 4: Razorpay options object
       const options = {
-        key: razorpayKey || "rzp_test_dummy_key_id",
-        amount: data.order.amount,
-        currency: data.order.currency || "INR",
+        key: razorpayKey || "rzp_test_TGnrGPYdo2QcRT",
+        amount: orderAmount, // in paise
+        currency: data.currency || "INR",
+        order_id: orderId, // from backend response
         name: "MentorSpace Platform",
         description: `Mentorship Session with ${selectedMentor?.name || "Mentor"}`,
-        order_id: data.order.id,
         handler: async function (response) {
+          console.log("Razorpay Payment Success Handler Response:", response);
           await verifyAndComplete({
-            razorpay_order_id: response.razorpay_order_id || data.order.id,
-            razorpay_payment_id: response.razorpay_payment_id || `pay_test_${Date.now()}`,
-            razorpay_signature: response.razorpay_signature || "mock_verified_signature",
-            amount: data.order.amount,
-            currency: data.order.currency || "INR",
+            razorpay_order_id: response.razorpay_order_id || orderId,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            amount: orderAmount,
+            currency: data.currency || "INR",
           });
         },
         modal: {
@@ -146,7 +151,7 @@ const AppointmentDialog = ({
       rzp.open();
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || "Session could not be booked");
-      console.error(err);
+      console.error("Checkout Error:", err);
     }
   };
 
