@@ -20,10 +20,10 @@ export default function SidebarLayout() {
   const formattedDate = format(date, "EEEE, MMMM d, yyyy");
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="flex h-screen w-full overflow-hidden">
       <AppSidebar />
-      <SidebarInset className="bg-[#FAFBF8] text-[#1F2937]">
-        <header className="sticky top-0 z-40 flex items-center justify-between h-16 border-b border-[#E5E7EB] bg-white/90 backdrop-blur-xl px-6">
+      <SidebarInset className="flex-1 h-full overflow-y-auto bg-[#FAFBF8] text-[#1F2937] flex flex-col">
+        <header className="sticky top-0 z-40 flex items-center justify-between h-16 border-b border-[#E5E7EB] bg-white/95 backdrop-blur-md px-6 shrink-0">
           <div className="flex items-center gap-3">
             <SidebarTrigger className="-ml-1 text-gray-600 hover:text-[#4CAF7D]" />
             <Separator orientation="vertical" className="h-4 bg-[#E5E7EB]" />
@@ -46,7 +46,7 @@ export default function SidebarLayout() {
           </div>
         </header>
 
-        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full">
+        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full flex-1">
           <Outlet />
         </main>
 
