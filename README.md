@@ -4,42 +4,37 @@ MentorSpace is a modern, two-role mentorship platform connecting students with s
 
 ---
 
-## 🌟 Key Features & Platform Highlights
+## 🌟 Key Features
 
-- **Centered & Balanced Landing Hero**: Re-architected landing hero with centered typography, domain badges, instant action CTAs, and verified platform metrics.
-- **Brand-Consistent SVG Favicon**: Custom Graduation Cap logo favicon (`favicon.svg`) matching MentorSpace branding across browsers and tab bars.
-- **Strict 2-Role Security Model**: Platform access is exclusively partitioned for **Student** and **Mentor** workspaces with role-based JWT guards (`authenticate`, `authorizeStudent`, `authorizeMentor`).
-- **Comprehensive Mentor Onboarding & Profiles**: Full mentor registration workflow capturing Professional Title, Company, Primary Specialization, Key Skills, Years of Experience, Bio/About, Session Fee (₹), Spoken Languages, Availability Schedule, Profile Photo, and LinkedIn link—persisted in MongoDB without default or dummy values.
-- **Interactive 2-Step Booking Flow**:
-  1. **Schedule & Topic**: Date selection calendar with visual date highlighting, time slot selection (Morning/Afternoon/Evening), and goal description validation.
-  2. **Review & Pay Summary**: Real-time session fee breakdown and interactive Razorpay checkout popup.
-- **HMAC Signature Verified Razorpay Payments**: Server-side Razorpay order creation (`POST /api/payment/create-order`) and HMAC SHA-256 digital signature verification (`POST /api/payment/verify`) with digital transaction receipt generation.
-- **Responsive Sidebar Calendar**: Perfectly aligned and styled DatePicker calendar inside the mentor and student sidebar console without text clipping or grid misalignment.
-- **Dedicated About Page & Section**: Comprehensive `/about` page and `#about` landing section covering Platform Mission, Vision, Features, Student Benefits, Mentor Benefits, and Company Story.
-- **Domain-Based Mentor Discovery**: Filter and search verified tech mentors across 10 specialized engineering domains:
-  - React, Node.js, Java, Python, Machine Learning, DevOps, UI/UX, Data Structures, Competitive Programming, and Cloud Architecture.
-- **Mentor Console & Session Lifecycle**: Real-time request approvals (`Pending` → `Accepted` → `Completed` / `Rejected`) and instant availability toggle (`Active` / `Away`).
+- **Strict 2-Role Security Model** — Platform access is exclusively partitioned for **Student** and **Mentor** workspaces with role-based JWT authorization guards (`authenticate`, `authorizeStudent`, `authorizeMentor`).
+- **Domain-Based Mentor Discovery** — Filter and search verified tech mentors across 10 specialized engineering domains (React, Node.js, Java, Python, ML, DevOps, UI/UX, Data Structures, Competitive Programming, Cloud).
+- **HMAC SHA-256 Verified Payments** — Server-side Razorpay order creation (`POST /api/payment/create-order`) and HMAC SHA-256 digital signature verification (`POST /api/payment/verify`) with digital transaction receipt generation.
+- **Interactive 2-Step Booking Flow** — Date selection calendar with visual date highlighting, time-slot scheduling (Morning/Afternoon/Evening), and goal description validation.
+- **Mentor Console & Session Lifecycle** — Real-time session request management (`Pending` → `Accepted` → `Completed` / `Rejected`) and availability toggles.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 19, Vite 6, TailwindCSS, Lucide Icons, Zustand, React Hook Form, Zod
-- **UI Design System**: Sage Green Palette (`#4CAF7D`, `#2e7d52`, `#DDF4E7`), Glassmorphism, Google Fonts (`Outfit` + `Plus Jakarta Sans`)
-- **Backend**: Node.js, Express 5, MongoDB (Mongoose 8), Crypto (HMAC SHA-256)
-- **Security & Payments**: JWT Authentication, Bcrypt Password Hashing, Razorpay SDK integration
+- **Frontend:** React 19, Vite 6, Tailwind CSS, Lucide Icons, Axios
+- **Backend:** Node.js (v20.20.2), Express 5, MongoDB (Mongoose 8), Crypto (HMAC SHA-256)
+- **Security & Payments:** JWT Authentication, Password Hashing, Razorpay SDK integration
 
 ---
 
-## 🚀 Setup & Execution Guide
+## 🚀 Setup & Detailed Execution Guide
 
 ### 1. Prerequisites
-- Node.js (v18+)
-- MongoDB running locally at `mongodb://127.0.0.1:27017`
+- **Node.js**: Version `20.20.2` (use `nvm use 20.20.2`)
+- **MongoDB**: Running locally at `mongodb://127.0.0.1:27017` or a valid MongoDB Atlas URI
+- **Git**: Installed on your system
 
-### 2. Environment Variables
+---
 
-Root `.env`:
+### 2. Environment Variables Setup
+
+#### Root / Server Environment Variables (`.env` or `server/.env`)
+Create a `.env` file in the root directory:
 ```env
 PORT=8000
 MONGO_URL=mongodb://127.0.0.1:27017/mentorspace
@@ -47,111 +42,57 @@ JWT_SECRET=mentorspace_jwt_secret_key_2026
 RAZORPAY_KEY_ID=rzp_test_TImK53NPdBihRw
 RAZORPAY_KEY_SECRET=wx3HHLMfmYXPvO9dbxCTILK2
 RATE_LIMIT_ENABLED=true
-RATE_LIMIT_LOGIN=100:15
-RATE_LIMIT_REGISTER=100:15
-RATE_LIMIT_PAYMENT=100:15
 ```
 
-Client `.env` (`client/.env`):
+#### Client Environment Variables (`client/.env`)
+Create a `.env` file inside the `client` directory:
 ```env
 VITE_RAZORPAY_KEY_ID=rzp_test_TImK53NPdBihRw
 ```
 
-### 3. Installation & Database Seeding
+---
+
+### 3. Step-by-Step Installation & Execution
 
 ```bash
+# Clone and navigate to project root
+cd MentorSpace
+
+# Use Node v20.20.2
+nvm use 20.20.2
+
 # Install root & workspace dependencies
 npm install
 
-# Seed Database with 10 Mentors across 10 domains, 5 Students, sample appointments & transactions
+# Seed Database with 10 Mentors across 10 domains & sample student accounts
 npm run seed
 
-# Run automated test suite
-npm test
-```
-
-### 4. Running the Application
-
-#### Option A: Using 1 Terminal (Recommended ⭐)
-```bash
-# Runs Express backend server (port 8000) & Vite frontend app (port 5173) concurrently
+# Start Express backend (port 8000) & Vite frontend (port 5173) concurrently
 npm run dev
 ```
 
-#### Option B: Using 2 Terminals
-- **Terminal 1 (Backend Server)**: `npm run dev:server`
-- **Terminal 2 (Frontend Client)**: `npm run dev:client`
-
 ---
 
-## 🔑 Default Seed Credentials
-
+### 4. Default Seed Credentials
 Default Password for all sample accounts: **`Admin123@`**
 
-### Mentor Accounts (10 Tech Domains)
-| Domain | Mentor Name | Email | Status |
-|---|---|---|---|
-| **React** | Sarah Chen | `sarahchen@mentorspace.com` | Active |
-| **Node.js** | Michael Chang | `michaelchang@mentorspace.com` | Active |
-| **Java** | David Miller | `davidmiller@mentorspace.com` | Active |
-| **Python** | Elena Rostova | `elenarostova@mentorspace.com` | Active |
-| **Machine Learning** | Dr. Andrew Kim | `dr.andrewkim@mentorspace.com` | Active |
-| **DevOps** | James Wilson | `jameswilson@mentorspace.com` | Active |
-| **UI/UX** | Emma Watson | `emmawatson@mentorspace.com` | Active |
-| **Data Structures** | Priya Sharma | `priyasharma@mentorspace.com` | Active |
-| **Competitive Programming** | Vikram Malhotra | `vikrammalhotra@mentorspace.com` | Active |
-| **Cloud** | Robert Taylor | `roberttaylor@mentorspace.com` | Active |
-
-### Student Accounts (5 Sample Students)
-| Student Name | Email | Password |
-|---|---|---|
-| **Rahul Verma** | `rahul@student.com` | `Admin123@` |
-| **Ananya Gupta** | `ananya@student.com` | `Admin123@` |
-| **Karan Patel** | `karan@student.com` | `Admin123@` |
-| **Sneha Reddy** | `sneha@student.com` | `Admin123@` |
-| **Devansh Shah** | `devansh@student.com` | `Admin123@` |
+- **Sample Mentor Email:** `sarahchen@mentorspace.com` (React Domain)
+- **Sample Student Email:** `rahul@student.com`
 
 ---
 
 ## 📡 API Endpoints Summary
 
-### Authentication (`/api/auth`)
-- `POST /api/auth/register` — Register new user with full role attributes (`role`: `"student"` or `"mentor"`)
-- `POST /api/auth/login` — Login user (returns JWT token with `userId` and `role`)
-- `POST /api/auth/logout` — Logout user session
-
-### User (`/api/user`)
-- `GET /api/user` — Get authenticated user details (`authenticate` middleware)
-
-### Mentors (`/api/mentor`)
-- `GET /api/mentor` — List all active tech mentors (Public)
-- `GET /api/mentor/:id` — Get single mentor profile details (Public)
-- `GET /api/mentor/profile` — Self mentor profile details (`authenticate`, `authorizeMentor`)
-- `PUT /api/mentor/profile` — Update self mentor profile, availability & details (`authenticate`, `authorizeMentor`)
-- `PUT /api/mentor/:id` — Update mentor profile by ID (`authenticate`, `authorizeMentor`)
-
-### Students (`/api/student`)
-- `GET /api/student` — Get student profile (`authenticate`, `authorizeStudent`)
-- `POST /api/student` — Upsert student profile (`authenticate`, `authorizeStudent`)
-
-### Appointments (`/api/appointment`)
-- `GET /api/appointment` — Get appointments for logged-in user (`authenticate`)
-- `POST /api/appointment` — Book mentorship session (`authenticate`, `authorizeStudent`)
-- `PUT /api/appointment/:id` — Update appointment status (`authenticate`, `authorizeMentor`)
-
-### Payments (`/api/payment`)
-- `POST /api/payment/create-order` — Create Razorpay order (`authenticate`, `authorizeStudent`)
-- `POST /api/payment/verify` — Verify Razorpay HMAC signature & finalize appointment (`authenticate`, `authorizeStudent`)
-- `GET /api/payment` — Get verified transaction history (`authenticate`)
-
----
-
-## 🧪 Production Build
-
-Verify client build:
-```bash
-npm run build
-```
+| Module | Endpoint | Description |
+|--------|----------|-------------|
+| Auth | `POST /api/auth/register` | Register new user with role (`student` or `mentor`) |
+| Auth | `POST /api/auth/login` | Login user and retrieve JWT token |
+| Mentors | `GET /api/mentor` | List all active mentors by domain |
+| Mentors | `GET /api/mentor/:id` | Get detailed mentor profile |
+| Appointments | `POST /api/appointment` | Book 1-on-1 mentorship session |
+| Appointments | `PUT /api/appointment/:id` | Update session status (`accepted`, `completed`, `rejected`) |
+| Payments | `POST /api/payment/create-order` | Generate Razorpay order ID |
+| Payments | `POST /api/payment/verify` | Verify HMAC SHA-256 signature and issue digital receipt |
 
 ---
 

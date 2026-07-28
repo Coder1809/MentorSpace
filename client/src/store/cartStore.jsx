@@ -1,26 +1,35 @@
-import { create } from "zustand";
+import { useState, useEffect } from "react";
 
-const useCartStore = create((set, get) => ({
-  cart: [],
+let currentCart = [];
+let cartListeners = [];
 
-  addToCart: (item) => {
-    const cart = get().cart;
-    const exists = cart.find((i) => i._id === item._id);
-    if (!exists) {
-      set({ cart: [...cart, item] });
-    }
-  },
+const updateCart = (newCart) => {
+  currentCart = newCart;
+  cartListeners.forEach((l) => l(currentCart));
+};
 
-  removeFromCart: (id) => {
-    set((state) => ({
-      cart: state.cart.filter((item) => item._id !== id),
-    }));
-  },
+export const useCartStore = (selector) => {
+  const [cart, setCart] = useState(currentCart);
 
-  clearCart: () => set({ cart: [] }),
+  useEffect(() => {
+    const listener = (val) => setCart(val);
+    cartListeners.push(listener);
+    return () => {
+      cartListeners = cartListeners.filter((l) => l !== listener);
+    };
+  }, []);
 
-  getTotal: () =>
-    get().cart.reduce((total, item) => total + Number(item.price), 0),
-}));
+  const store = {
+    cart,
+    addToCart: (item) => {
+      if (!cart.find((i) => i._id === item._id)) {
+        updateCart([...cart, item]);
+      }
+    },
+    removeFromCart: (id) => updateCart(cart.filter((item) => item._id !== id)),
+    clearCart: () => updateCart([]),
+    getTotal: () => cart.reduce((total, item) => total + Number(item.price), 0),
+  };
 
-export { useCartStore };
+  return typeof selector === "function" ? selector(store) : store;
+};
