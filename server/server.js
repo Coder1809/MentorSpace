@@ -12,6 +12,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import path from "path";
+import fs from "fs";
 
 const PORT = process.env.PORT || 8000;
 const app = express();
@@ -32,11 +33,14 @@ app.use("/api/payment", paymentRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const clientBuildPath = path.join(__dirname, "..", "client", "dist");
-  app.use(express.static(clientBuildPath));
-
-  app.get("/{*any}", (req, res) => {
-    res.sendFile(path.join(clientBuildPath, "index.html"));
-  });
+  if (fs.existsSync(clientBuildPath)) {
+    app.use(express.static(clientBuildPath));
+    app.get("/{*any}", (req, res) => {
+      res.sendFile(path.join(clientBuildPath, "index.html"));
+    });
+  } else {
+    console.log("Production mode: Standalone API deployment (no client build found).");
+  }
 }
 
 app.listen(PORT, async () => {
