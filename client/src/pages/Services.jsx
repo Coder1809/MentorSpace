@@ -45,7 +45,7 @@ const Services = () => {
       try {
         const res = await api.get("/services");
         setServices(res.data.data || []);
-      } catch (err) {
+      } catch {
         toast.error("Error fetching mentorship tracks");
       }
     };

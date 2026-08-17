@@ -47,7 +47,7 @@ const Home = () => {
           (appointment) => appointment.status === "Pending" || appointment.status === "Accepted"
         );
         setNextAppointment(pendingAppointments[0]);
-      } catch (err) {
+      } catch {
         setShowNoStudentAlert(true);
       }
     };

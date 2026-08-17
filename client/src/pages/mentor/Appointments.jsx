@@ -59,7 +59,7 @@ const Appointments = () => {
       await api.put(`/appointment/${id}`, { status });
       toast.success(`Session status updated to ${status}`);
       fetchAppointments();
-    } catch (err) {
+    } catch {
       toast.error("Failed to update session status");
     }
   };

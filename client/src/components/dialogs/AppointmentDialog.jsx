@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -48,7 +48,7 @@ const loadRazorpayScript = () => {
     if (typeof window !== "undefined" && window.Razorpay) {
       resolve(true);
       return;
-    }
+      }
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
@@ -66,19 +66,18 @@ const AppointmentDialog = ({
   mode = "create",
 }) => {
   const [step, setStep] = useState(1);
-  const [popoverOpen, setPopoverOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
   const isEdit = mode === "edit";
 
   // Watch form fields to ensure immediate reactive UI updates
-  const watchedDate = form.watch("date");
-  const watchedTimeSlot = form.watch("timeSlot");
-  const watchedReason = form.watch("reason");
+  form.watch("date");
+  form.watch("timeSlot");
+  form.watch("reason");
 
   const handleNextStep = async (e) => {
     if (e) e.preventDefault();
-    const isValid = await form.trigger(["date", "timeSlot", "reason"]);
+    await form.trigger(["date", "timeSlot", "reason"]);
     const values = form.getValues();
 
     if (!values.date) {

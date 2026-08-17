@@ -182,7 +182,7 @@ const Account = () => {
       const res = await api.put("/mentor/profile", { ...details, status: newStatus });
       setDetails(res.data.data);
       toast.success(`Availability status set to ${newStatus}`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to update status");
     }
   };

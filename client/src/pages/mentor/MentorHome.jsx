@@ -50,7 +50,7 @@ const MentorHome = () => {
       });
       setMentorProfile(res.data.data);
       toast.success(`Availability status updated to ${nextStatus}`);
-    } catch (err) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
