@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  BookOpen,
   CalendarDays,
   Clock,
   GraduationCap,
@@ -102,11 +101,6 @@ const Home = () => {
                     Find a Mentor <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Link to="/services">
-                  <Button variant="outline" className="border-[#4CAF7D]/40 bg-white hover:bg-[#FAFBF8] text-[#1F2937] font-bold px-6 py-3 rounded-2xl text-base shadow-sm">
-                    Mentorship Tracks
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
@@ -193,22 +187,7 @@ const Home = () => {
               </Link>
             </Card>
 
-            <Card className="sage-card sage-card-hover rounded-3xl p-6 border border-[#E5E7EB] group">
-              <Link to="/services" className="flex flex-col justify-between h-full space-y-4">
-                <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#2e7d52] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-extrabold text-xl text-[#1F2937]">Mentorship Tracks</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Explore curated mock interview tracks, architecture audits, and resume review packages.
-                  </p>
-                </div>
-                <div className="pt-2 flex items-center text-[#2e7d52] font-bold text-sm group-hover:gap-2 transition-all">
-                  View Tracks <ArrowRight className="ml-1 w-4 h-4" />
-                </div>
-              </Link>
-            </Card>
+
 
             <Card className="sage-card sage-card-hover rounded-3xl p-6 border border-[#E5E7EB] group">
               <Link to="/account" className="flex flex-col justify-between h-full space-y-4">

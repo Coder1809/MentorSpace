@@ -7,7 +7,6 @@ import studentRoutes from "./routes/studentRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import mentorRoutes from "./routes/mentorRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
-import servicesRoutes from "./routes/servicesRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
@@ -28,7 +27,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/mentor", mentorRoutes);
 app.use("/api/appointment", appointmentRoutes);
-app.use("/api/services", servicesRoutes);
 app.use("/api/payment", paymentRoutes);
 
 if (process.env.NODE_ENV === "production") {

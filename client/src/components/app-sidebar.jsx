@@ -7,7 +7,6 @@ import {
   GraduationCap,
   User,
   Clock,
-  BookOpen,
   Sparkles,
 } from "lucide-react";
 import { DatePicker } from "@/components/date-picker";
@@ -44,7 +43,7 @@ const sidebarConfig = {
   student: [
     { title: "Home", url: "/home", icon: Home },
     { title: "Mentors Directory", url: "/mentors", icon: UsersRound },
-    { title: "Packages & Tracks", url: "/services", icon: BookOpen },
+
     { title: "My Appointments", url: "/account", icon: CalendarCheck },
     { title: "Transactions", url: "/transactions", icon: DollarSign },
     { title: "Profile", url: "/account", icon: User },

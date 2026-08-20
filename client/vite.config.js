@@ -18,7 +18,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": "http://localhost:8000", // Proxies all /api requests to backend
+      "/api": "http://localhost:5001", // Proxies all /api requests to MentorSpace backend
     },
   },
 });

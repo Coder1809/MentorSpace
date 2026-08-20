@@ -12,7 +12,7 @@ const SidebarLayout = React.lazy(() => import("./components/SidebarLayout"));
 const ProtectedRoute = React.lazy(() => import("./components/ProtectedRoute"));
 const Mentors = React.lazy(() => import("./pages/Mentors"));
 const Support = React.lazy(() => import("./pages/Support"));
-const Services = React.lazy(() => import("./pages/Services"));
+
 const Transactions = React.lazy(() => import("./pages/Transactions"));
 
 // Mentor nested pages
@@ -79,7 +79,7 @@ const App = () => {
         >
           <Route path="/home" element={<Home />} />
           <Route path="/mentors" element={<Mentors />} />
-          <Route path="/services" element={<Services />} />
+
           <Route path="/transactions" element={<Transactions />} />
         </Route>
 
