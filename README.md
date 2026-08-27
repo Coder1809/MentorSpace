@@ -142,9 +142,9 @@ The database is structured into 5 core collections with relational references:
 ```env
 PORT=5001
 MONGO_URL=mongodb://127.0.0.1:27017/mentorspace
-JWT_SECRET=mentorspace_jwt_secret_key_2026
-RAZORPAY_KEY_ID=rzp_test_TImK53NPdBihRw
-RAZORPAY_KEY_SECRET=wx3HHLMfmYXPvO9dbxCTILK2
+JWT_SECRET=your_jwt_secret_here
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 RATE_LIMIT_ENABLED=true
 RATE_LIMIT_LOGIN=100:15
 RATE_LIMIT_REGISTER=100:15
@@ -154,7 +154,7 @@ RATE_LIMIT_PAYMENT=100:15
 **Client (`client/vite.config.js` or `client/.env`):**
 ```env
 VITE_API_URL=http://localhost:5001/api
-VITE_RAZORPAY_KEY_ID=rzp_test_TImK53NPdBihRw
+VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
 ```
 
 ---
