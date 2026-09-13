@@ -182,10 +182,6 @@ export default function SignupPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-500 font-medium">
-                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> indicates a required field
-                </p>
-
                 <FormField
                   control={form.control}
                   name="username"
@@ -525,6 +521,10 @@ export default function SignupPage() {
                     `Register as ${selectedRole === "mentor" ? "Mentor" : "Student"}`
                   )}
                 </Button>
+
+                <p className="text-xs text-gray-500 font-medium text-center pt-1">
+                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
+                </p>
 
                 <div className="text-center text-sm text-gray-600 pt-2">
                   Already have an account?{" "}

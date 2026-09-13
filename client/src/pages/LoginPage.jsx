@@ -120,9 +120,6 @@ export default function LoginPage() {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <p className="text-xs text-gray-500 font-medium">
-                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> indicates a required field
-                </p>
                 <FormField
                   control={form.control}
                   name="email"
@@ -179,6 +176,10 @@ export default function LoginPage() {
                     "Sign In"
                   )}
                 </Button>
+
+                <p className="text-xs text-gray-500 font-medium text-center pt-1">
+                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
+                </p>
 
                 <div className="text-center text-sm text-gray-600 pt-2">
                   Don't have an account?{" "}

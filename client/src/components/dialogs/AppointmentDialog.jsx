@@ -290,9 +290,6 @@ const AppointmentDialog = ({
             {step === 1 ? (
               /* STEP 1: SCHEDULE & TOPIC */
               <div className="space-y-4 animate-in fade-in-50 duration-200">
-                <p className="text-xs text-gray-500 font-medium">
-                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> indicates a required field
-                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                   <FormField
                     control={form.control}
@@ -482,6 +479,9 @@ const AppointmentDialog = ({
                       Proceed to Payment Summary <ArrowRight className="w-4 h-4" />
                     </Button>
                   )}
+                  <p className="text-xs text-gray-500 font-medium text-center pt-2">
+                    <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
+                  </p>
                 </div>
               </div>
             ) : (
