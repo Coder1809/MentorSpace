@@ -182,6 +182,10 @@ export default function SignupPage() {
                   </div>
                 </div>
 
+                <p className="text-xs text-gray-500 font-medium">
+                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> indicates a required field
+                </p>
+
                 <FormField
                   control={form.control}
                   name="username"
