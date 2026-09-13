@@ -162,9 +162,13 @@ export default function LoginPage() {
                   )}
                 />
 
+                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
+                </p>
+
                 <Button
                   type="submit"
-                  className="w-full btn-sage font-bold h-12 rounded-xl text-base mt-2"
+                  className="w-full btn-sage font-bold h-12 rounded-xl text-base shadow-md"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? (
@@ -176,10 +180,6 @@ export default function LoginPage() {
                     "Sign In"
                   )}
                 </Button>
-
-                <p className="text-xs text-gray-500 font-medium text-center pt-1">
-                  <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
-                </p>
 
                 <div className="text-center text-sm text-gray-600 pt-2">
                   Don't have an account?{" "}

@@ -462,6 +462,9 @@ const AppointmentDialog = ({
                 />
 
                 <div className="pt-2">
+                  <p className="text-xs text-gray-500 font-medium flex items-center gap-1 pb-3">
+                    <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
+                  </p>
                   {isEdit ? (
                     <Button
                       type="submit"
@@ -479,9 +482,6 @@ const AppointmentDialog = ({
                       Proceed to Payment Summary <ArrowRight className="w-4 h-4" />
                     </Button>
                   )}
-                  <p className="text-xs text-gray-500 font-medium text-center pt-2">
-                    <span className="text-red-500 font-bold" aria-hidden="true">*</span> Required fields
-                  </p>
                 </div>
               </div>
             ) : (
