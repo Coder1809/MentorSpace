@@ -15,7 +15,7 @@
     "test": "node server/test_api.js",
     "start": "cross-env NODE_ENV=production node server/server.js"
   },
-  "author": "Rushil Reddy",
+  "author": "Sasank Reddy",
   "license": "ISC",
   "dependencies": {
     "accesscontrol": "^2.2.1",
