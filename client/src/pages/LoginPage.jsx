@@ -125,7 +125,9 @@ export default function LoginPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 font-semibold">Email Address</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">
+                        Email Address <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
@@ -144,7 +146,9 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 font-semibold">Password</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">
+                        Password <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="password"

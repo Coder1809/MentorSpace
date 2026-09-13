@@ -330,7 +330,9 @@ const AppointmentDialog = ({
                       return (
                         <FormItem className="flex flex-col gap-2 col-span-full">
                           <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center justify-between">
-                            <span>Session Date</span>
+                            <span>
+                              Session Date <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                            </span>
                             {selectedDate && (
                               <span className="text-[#2e7d52] font-extrabold text-xs bg-[#DDF4E7] px-2.5 py-0.5 rounded-full border border-[#4CAF7D]/30">
                                 {selectedDate.toLocaleDateString("en-US", {
@@ -344,7 +346,7 @@ const AppointmentDialog = ({
                           </FormLabel>
 
                           {/* Quick Preset Buttons */}
-                          <div className="flex flex-wrap items-center gap-2 pb-1">
+                          <div className="grid grid-cols-3 gap-2">
                             <Button
                               type="button"
                               variant="outline"
@@ -415,7 +417,7 @@ const AppointmentDialog = ({
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
                         <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Time Slot
+                          Time Slot <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -445,7 +447,7 @@ const AppointmentDialog = ({
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                        Session Goal / Topic
+                        Session Goal / Topic <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea

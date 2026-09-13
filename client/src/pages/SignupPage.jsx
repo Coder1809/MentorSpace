@@ -187,7 +187,9 @@ export default function SignupPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 font-semibold">Full Name</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">
+                        Full Name <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Alex Morgan"
@@ -205,7 +207,9 @@ export default function SignupPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 font-semibold">Email Address</FormLabel>
+                      <FormLabel className="text-gray-700 font-semibold">
+                        Email Address <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
@@ -225,7 +229,9 @@ export default function SignupPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-semibold">Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-semibold">
+                          Password <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -244,7 +250,9 @@ export default function SignupPage() {
                     name="cnfpass"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-semibold">Confirm Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-semibold">
+                          Confirm Password <span className="text-red-500 font-bold ml-0.5" aria-hidden="true">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="password"
