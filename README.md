@@ -165,7 +165,7 @@ VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
 ```bash
 cd server
 npm install
-npm run seed     # Seeds 15 realistic mentors, students, and profiles
+npm run seed     # Seeds 8 curated mentors across tech domains & students
 npm start        # Starts server on http://localhost:5001
 ```
 
@@ -182,14 +182,20 @@ npm run dev      # Starts client on http://localhost:5173 (or 5174)
 
 All seeded test accounts use the universal password: **`Admin123@`**
 
-| Role | Email | Domain / Description |
+| Role | Email | Domain / Company |
 |---|---|---|
-| **Mentor** | `sarahchen@mentorspace.com` | Frontend / React Senior Engineer |
-| **Mentor** | `alexkumar@mentorspace.com` | Backend / Node.js & Distributed Systems |
-| **Mentor** | `davidmiller@mentorspace.com` | DevOps & Cloud Infrastructure |
-| **Mentor** | `drandrewkim@mentorspace.com` | AI/ML & Computer Vision Specialist |
+| **Mentor** | `sarahchen@mentorspace.com` | React — Senior Frontend Engineer at Meta |
+| **Mentor** | `michaelchang@mentorspace.com` | Node.js — Backend System Architect at Stripe |
+| **Mentor** | `davidmiller@mentorspace.com` | Java — Principal Software Engineer at Oracle |
+| **Mentor** | `elenarostova@mentorspace.com` | Python — Full Stack Python Lead at Spotify |
+| **Mentor** | `drandrewkim@mentorspace.com` | Machine Learning — Staff AI Researcher at Google DeepMind |
+| **Mentor** | `jameswilson@mentorspace.com` | DevOps — Senior DevOps Engineer at Amazon AWS |
+| **Mentor** | `emmawatson@mentorspace.com` | UI/UX — Lead Product Designer at Airbnb |
+| **Mentor** | `priyasharma@mentorspace.com` | Data Structures — Staff Software Engineer at Microsoft |
 | **Student** | `rahul@student.com` | CS Student exploring Full-Stack Careers |
-| **Student** | `ananya@student.com` | Frontend Engineering Aspirant |
+| **Student** | `ananya@student.com` | Final year student preparing for System Design |
+| **Student** | `karan@student.com` | Self-taught developer focusing on Web Dev |
+
 
 ---
 
