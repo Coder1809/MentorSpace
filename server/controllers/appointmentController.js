@@ -169,7 +169,17 @@ const updateAppointment = async (req, res) => {
   }
 
   try {
-    const update = { status: req.body.status };
+    const newStatus = req.body.status;
+
+    // Validate the requested status is a valid enum value
+    const validStatuses = ["Pending", "Accepted", "Completed", "Rejected", "Cancelled"];
+    if (!validStatuses.includes(newStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status: ${newStatus}. Must be one of: ${validStatuses.join(", ")}`,
+      });
+    }
+
     const filter = { _id: appointmentId };
 
     if (role === "mentor") {
@@ -188,20 +198,37 @@ const updateAppointment = async (req, res) => {
       });
     }
 
-    const appointment = await appointmentModel.findOneAndUpdate(
-      filter,
-      update,
-      {
-        new: true,
-      }
-    );
-
-    if (!appointment) {
+    // Fetch current appointment to validate status transition
+    const currentAppointment = await appointmentModel.findOne(filter);
+    if (!currentAppointment) {
       return res.status(404).json({
         success: false,
         message: "Appointment not found",
       });
     }
+
+    // Define valid status transitions
+    const validTransitions = {
+      Pending: ["Accepted", "Rejected"],
+      Accepted: ["Completed", "Cancelled"],
+      Completed: [], // Terminal state — no further changes
+      Rejected: [],  // Terminal state — no further changes
+      Cancelled: [], // Terminal state — no further changes
+    };
+
+    const allowed = validTransitions[currentAppointment.status] || [];
+    if (!allowed.includes(newStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot change status from "${currentAppointment.status}" to "${newStatus}". Allowed transitions: ${allowed.length > 0 ? allowed.join(", ") : "none (terminal state)"}`,
+      });
+    }
+
+    const appointment = await appointmentModel.findOneAndUpdate(
+      filter,
+      { status: newStatus },
+      { new: true }
+    );
 
     return res.status(200).json({
       success: true,

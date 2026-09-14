@@ -25,7 +25,29 @@ const createOrder = async (req, res) => {
     });
   }
 
-  const { amount } = req.body;
+  const { amount, mentor, date, timeSlot } = req.body;
+
+  // Early check: don't create order if slot is already booked
+  if (mentor && date && timeSlot) {
+    try {
+      const parsedDate = new Date(date);
+      const existing = await appointmentModel.findOne({
+        mentorID: mentor,
+        date: parsedDate,
+        timeSlot,
+        status: { $in: ["Pending", "Accepted", "Completed"] },
+      });
+      if (existing) {
+        return res.status(409).json({
+          success: false,
+          message: "This slot has already been booked. Please select a different date or time slot.",
+        });
+      }
+    } catch (checkErr) {
+      console.warn("[payment/create-order] Pre-check slot error:", checkErr);
+    }
+  }
+
   const numAmount = Number(amount) || 1499;
   // Amount in PAISE (rupees * 100)
   const orderAmount = numAmount > 10000 ? numAmount : Math.round(numAmount * 100);
@@ -143,6 +165,8 @@ const verifyPayment = async (req, res) => {
     let appointmentDoc = null;
     if (mentor && date && timeSlot) {
       const parsedDate = new Date(date);
+
+      // CRITICAL: Check if slot is already booked — reject if taken
       const existingAppt = await appointmentModel.findOne({
         mentorID: mentor._id,
         date: parsedDate,
@@ -150,17 +174,21 @@ const verifyPayment = async (req, res) => {
       });
 
       if (existingAppt) {
-        appointmentDoc = existingAppt;
-      } else {
-        appointmentDoc = await appointmentModel.create({
-          studentID: student._id,
-          mentorID: mentor._id,
-          date: parsedDate,
-          timeSlot,
-          status: "Pending",
-          reason: reason || "Mentorship Session",
+        // Slot is already taken — do NOT silently reuse another student's appointment
+        return res.status(409).json({
+          success: false,
+          message: "This time slot has already been booked. Please select a different slot. Your payment will be refunded.",
         });
       }
+
+      appointmentDoc = await appointmentModel.create({
+        studentID: student._id,
+        mentorID: mentor._id,
+        date: parsedDate,
+        timeSlot,
+        status: "Pending",
+        reason: reason || "Mentorship Session",
+      });
     }
 
     // 4. Store Transaction details in MongoDB

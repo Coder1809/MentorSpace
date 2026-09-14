@@ -41,7 +41,9 @@ const Appointments = () => {
     try {
       setLoading(true);
       const res = await api.get("/appointment");
-      setAppointments(res.data.data || []);
+      const all = res.data.data || [];
+      // Issue 2: Only show Pending requests in Booking Requests page
+      setAppointments(all.filter((a) => a.status === "Pending"));
     } catch (err) {
       console.error("Failed to fetch appointments", err);
       toast.error("Error loading mentorship sessions");
@@ -84,10 +86,10 @@ const Appointments = () => {
             Mentor Appointments Console
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937]">
-            Scheduled <span className="gradient-text-sage">Mentorship Requests</span>
+            Pending <span className="gradient-text-sage">Booking Requests</span>
           </h1>
           <p className="text-gray-600 text-sm mt-1">
-            Review student booking requests, accept appointments, or mark sessions completed.
+            Review incoming student booking requests. Accept or reject pending mentorship appointments.
           </p>
         </div>
       </div>
@@ -213,56 +215,24 @@ const Appointments = () => {
               </CardContent>
 
               <CardFooter className="p-6 pt-0 gap-3 border-t border-[#E5E7EB]">
-                {appt.status === "Pending" ? (
-                  <>
-                    <Button
-                      size="sm"
-                      className="w-1/2 btn-sage font-bold rounded-xl h-10"
-                      onClick={() => handleStatusUpdate(appt._id, "Accepted")}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1.5" />
-                      Accept
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-1/2 text-red-600 border-red-200 bg-red-50 hover:bg-red-100 font-bold rounded-xl h-10"
-                      onClick={() => handleStatusUpdate(appt._id, "Rejected")}
-                    >
-                      <XCircle className="w-4 h-4 mr-1.5" />
-                      Reject
-                    </Button>
-                  </>
-                ) : appt.status === "Accepted" ? (
-                  <>
-                    <Button
-                      size="sm"
-                      className="w-1/2 bg-[#10B981] hover:bg-[#059669] text-white font-bold rounded-xl h-10 shadow-md"
-                      onClick={() => handleStatusUpdate(appt._id, "Completed")}
-                    >
-                      <CheckCheck className="w-4 h-4 mr-1.5" />
-                      Complete
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-1/2 text-red-600 border-red-200 bg-red-50 hover:bg-red-100 font-bold rounded-xl h-10"
-                      onClick={() => handleStatusUpdate(appt._id, "Rejected")}
-                    >
-                      <XCircle className="w-4 h-4 mr-1.5" />
-                      Reject
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs font-bold rounded-xl h-10 border-[#E5E7EB] text-gray-700 hover:bg-[#FAFBF8]"
-                    onClick={() => handleStatusUpdate(appt._id, appt.status === "Completed" ? "Accepted" : "Completed")}
-                  >
-                    Toggle Status ({appt.status})
-                  </Button>
-                )}
+                {/* Issue 7: Only show Accept/Reject for Pending requests */}
+                <Button
+                  size="sm"
+                  className="w-1/2 btn-sage font-bold rounded-xl h-10"
+                  onClick={() => handleStatusUpdate(appt._id, "Accepted")}
+                >
+                  <CheckCircle className="w-4 h-4 mr-1.5" />
+                  Accept
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-1/2 text-red-600 border-red-200 bg-red-50 hover:bg-red-100 font-bold rounded-xl h-10"
+                  onClick={() => handleStatusUpdate(appt._id, "Rejected")}
+                >
+                  <XCircle className="w-4 h-4 mr-1.5" />
+                  Reject
+                </Button>
               </CardFooter>
             </Card>
           ))

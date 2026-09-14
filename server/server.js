@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import mentorRoutes from "./routes/mentorRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import ratingRoutes from "./routes/ratingRoutes.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -28,6 +29,7 @@ app.use("/api/student", studentRoutes);
 app.use("/api/mentor", mentorRoutes);
 app.use("/api/appointment", appointmentRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/rating", ratingRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const clientBuildPath = path.join(__dirname, "..", "client", "dist");

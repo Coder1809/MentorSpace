@@ -42,6 +42,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { api } from "@/utils/api";
+import { useUserStore } from "@/store/userStore";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -67,6 +68,7 @@ const AppointmentDialog = ({
 }) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUserStore();
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
   const isEdit = mode === "edit";
 
@@ -125,7 +127,12 @@ const AppointmentDialog = ({
 
       // Amount in rupees — backend multiplies by 100 to convert to paise
       const amount = selectedMentor?.price || 1499;
-      const { data: orderData } = await api.post("/payment/create-order", { amount });
+      const { data: orderData } = await api.post("/payment/create-order", {
+        amount,
+        mentor: selectedMentor?._id,
+        date: values.date,
+        timeSlot: values.timeSlot,
+      });
 
       if (!orderData.success || !orderData.order?.id) {
         throw new Error(orderData.message || "Order creation failed");
@@ -179,9 +186,9 @@ const AppointmentDialog = ({
           },
         },
         prefill: {
-          name: "Student User",
-          email: "student@mentorspace.io",
-          contact: "9876543210",
+          name: user?.name || user?.username || "",
+          email: user?.email || "",
+          contact: user?.phone || "",
         },
         theme: {
           color: "#4CAF7D",

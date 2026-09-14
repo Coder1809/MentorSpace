@@ -16,17 +16,21 @@ const mentorSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      default: "9999999999",
+      default: "",
       trim: true,
     },
     gender: {
       type: String,
-      enum: ["Male", "Female"],
-      default: "Male",
+      enum: ["Male", "Female", ""],
+      default: "",
     },
     age: {
       type: Number,
-      default: 30,
+      default: null,
+    },
+    profileComplete: {
+      type: Boolean,
+      default: false,
     },
     specialization: {
       type: String,

@@ -1,6 +1,7 @@
 import axios from "axios";
+import crypto from "crypto";
 
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "http://localhost:5001/api";
 
 const run2RoleTests = async () => {
   console.log("🚀 Starting 2-Role MentorSpace Automated Test Suite...");
@@ -97,12 +98,19 @@ const run2RoleTests = async () => {
     futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 50) + 5);
     const dateStr = futureDate.toISOString().split("T")[0];
 
+    const payId = `pay_${Date.now()}`;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "123456789";
+    const hmacSig = crypto
+      .createHmac("sha256", keySecret)
+      .update(`${orderRes.data.order.id}|${payId}`)
+      .digest("hex");
+
     const verifyRes = await axios.post(
       `${BASE_URL}/payment/verify`,
       {
         razorpay_order_id: orderRes.data.order.id,
-        razorpay_payment_id: `pay_${Date.now()}`,
-        razorpay_signature: "mock_verified_signature",
+        razorpay_payment_id: payId,
+        razorpay_signature: hmacSig,
         amount: 149900,
         currency: "INR",
         mentorID: targetMentor._id,

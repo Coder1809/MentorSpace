@@ -12,6 +12,7 @@ const SidebarLayout = React.lazy(() => import("./components/SidebarLayout"));
 const ProtectedRoute = React.lazy(() => import("./components/ProtectedRoute"));
 const Mentors = React.lazy(() => import("./pages/Mentors"));
 const Support = React.lazy(() => import("./pages/Support"));
+const StudentAppointments = React.lazy(() => import("./pages/StudentAppointments"));
 
 const Transactions = React.lazy(() => import("./pages/Transactions"));
 
@@ -19,6 +20,9 @@ const Transactions = React.lazy(() => import("./pages/Transactions"));
 const MentorHome = React.lazy(() => import("./pages/mentor/MentorHome"));
 const MentorAppointments = React.lazy(
   () => import("./pages/mentor/Appointments")
+);
+const MentorSessions = React.lazy(
+  () => import("./pages/mentor/Sessions")
 );
 const Error = React.lazy(() => import("./pages/Error"));
 
@@ -79,7 +83,7 @@ const App = () => {
         >
           <Route path="/home" element={<Home />} />
           <Route path="/mentors" element={<Mentors />} />
-
+          <Route path="/appointments" element={<StudentAppointments />} />
           <Route path="/transactions" element={<Transactions />} />
         </Route>
 
@@ -96,6 +100,7 @@ const App = () => {
         >
           <Route path="" element={<MentorHome />} />
           <Route path="appointments" element={<MentorAppointments />} />
+          <Route path="sessions" element={<MentorSessions />} />
         </Route>
 
         {/* Protected Dual-role routes (Accessible by both Student and Mentor) */}

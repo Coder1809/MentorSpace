@@ -40,27 +40,46 @@ const signupSchema = z
     profilePhoto: z.string().optional(),
     linkedin: z.string().optional(),
   })
-  .refine((data) => data.password === data.cnfpass, {
-    message: "Passwords do not match",
-    path: ["cnfpass"],
-  })
-  .refine(
-    (data) => {
-      if (data.role === "mentor") {
-        return (
-          !!data.title?.trim() &&
-          !!data.specialization?.trim() &&
-          !!data.experience?.trim() &&
-          !!data.bio?.trim()
-        );
-      }
-      return true;
-    },
-    {
-      message: "Please complete required mentor profile information",
-      path: ["specialization"],
+  .superRefine((data, ctx) => {
+    if (data.password !== data.cnfpass) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["cnfpass"],
+      });
     }
-  );
+
+    if (data.role === "mentor") {
+      if (!data.title?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Professional title is required",
+          path: ["title"],
+        });
+      }
+      if (!data.specialization?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Primary specialization is required",
+          path: ["specialization"],
+        });
+      }
+      if (!data.experience?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Years of experience is required",
+          path: ["experience"],
+        });
+      }
+      if (!data.bio?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Bio is required",
+          path: ["bio"],
+        });
+      }
+    }
+  });
 
 export default function SignupPage() {
   const navigate = useNavigate();

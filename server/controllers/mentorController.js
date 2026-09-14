@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 import mentorModel from "../models/mentorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
+import ratingModel from "../models/ratingModel.js";
 import authModel from "../models/authModel.js";
 import mongoose from "mongoose";
 
@@ -8,26 +9,11 @@ const getSelfMentor = async (req, res) => {
   const mentorID = req.user.id;
 
   try {
-    let mentor = await mentorModel.findOne({ mentorID });
+    const mentor = await mentorModel.findOne({ mentorID });
     if (!mentor) {
-      const user = await authModel.findById(mentorID);
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "Mentor user account not found",
-        });
-      }
-
-      mentor = await mentorModel.create({
-        mentorID: user._id,
-        name: user.name,
-        phone: `99${Date.now().toString().slice(-8)}`,
-        gender: "Male",
-        age: 30,
-        specialization: "React",
-        experience: "5+ years",
-        bio: "Experienced mentor guiding students in software engineering.",
-        status: "Active",
+      return res.status(404).json({
+        success: false,
+        message: "Mentor profile not found. Please complete your profile setup.",
       });
     }
 
@@ -125,11 +111,41 @@ const addMentor = async (req, res) => {
 
 const getAllMentors = async (req, res) => {
   try {
-    const mentors = await mentorModel.find({});
+    const mentors = await mentorModel.find({}).lean();
+
+    // Aggregate ratings for all mentors in a single query
+    const ratingsAgg = await ratingModel.aggregate([
+      {
+        $group: {
+          _id: "$mentorID",
+          averageRating: { $avg: "$rating" },
+          totalRatings: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Build a lookup map for O(1) access
+    const ratingsMap = {};
+    ratingsAgg.forEach((r) => {
+      ratingsMap[r._id.toString()] = {
+        averageRating: Math.round(r.averageRating * 10) / 10,
+        totalRatings: r.totalRatings,
+      };
+    });
+
+    // Enrich each mentor with their real rating data
+    const enrichedMentors = mentors.map((m) => {
+      const ratingData = ratingsMap[m._id.toString()] || {
+        averageRating: 0,
+        totalRatings: 0,
+      };
+      return { ...m, ...ratingData };
+    });
+
     return res.status(200).json({
       success: true,
       message: "All mentors retrieved",
-      data: mentors,
+      data: enrichedMentors,
     });
   } catch (err) {
     return res.status(500).json({
@@ -153,7 +169,30 @@ const getMentor = async (req, res) => {
   try {
     const mentor = await mentorModel.findOne({
       $or: [{ mentorID: id }, { _id: id }],
-    });
+    }).lean();
+
+    if (!mentor) {
+      return res.status(404).json({
+        success: false,
+        message: "Mentor not found",
+      });
+    }
+
+    const ratingAgg = await ratingModel.aggregate([
+      { $match: { mentorID: mentor._id } },
+      {
+        $group: {
+          _id: "$mentorID",
+          averageRating: { $avg: "$rating" },
+          totalRatings: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const ratingData = ratingAgg[0] || { averageRating: 0, totalRatings: 0 };
+    mentor.averageRating = Math.round(ratingData.averageRating * 10) / 10;
+    mentor.totalRatings = ratingData.totalRatings;
+
     return res.status(200).json({
       success: true,
       message: "Successfully retrieved",
@@ -163,7 +202,7 @@ const getMentor = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Couldn't retrieve",
-      error: err,
+      error: err.message || err,
     });
   }
 };

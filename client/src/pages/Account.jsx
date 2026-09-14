@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { api } from "@/utils/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -57,7 +58,7 @@ const studentSchema = z.object({
   name: z.string().min(1, "Name is required").max(40),
   age: z.coerce.number().min(1, "Must be at least 1").max(120, "Too old"),
   gender: z.enum(["Male", "Female"]),
-  phone: z.string().min(10).max(10).regex(/^[0-9]+$/, "Only digits allowed"),
+  phone: z.string().min(10, "Phone must be 10 digits").max(10, "Phone must be 10 digits").regex(/^[0-9]+$/, "Only digits allowed"),
   description: z.string().min(1, "Goals / Description is required"),
 });
 
@@ -65,7 +66,7 @@ const mentorSchema = z.object({
   name: z.string().min(1, "Name is required").max(40),
   age: z.coerce.number().min(1, "Must be at least 1").max(120, "Too old"),
   gender: z.enum(["Male", "Female"]),
-  phone: z.string().min(10).max(10).regex(/^[0-9]+$/, "Only digits allowed"),
+  phone: z.string().min(10, "Phone must be 10 digits").max(10, "Phone must be 10 digits").regex(/^[0-9]+$/, "Only digits allowed"),
   specialization: z.string().min(1, "Specialization is required"),
   experience: z.string().min(1, "Experience is required"),
   bio: z.string().min(1, "Bio is required"),
@@ -88,19 +89,19 @@ const Account = () => {
     defaultValues: isMentor
       ? {
           name: "",
-          age: 30,
+          age: "",
           gender: "Male",
-          phone: "9999999999",
-          specialization: "React",
-          experience: "5+ years",
+          phone: "",
+          specialization: "",
+          experience: "",
           bio: "",
           status: "Active",
         }
       : {
           name: "",
-          age: 22,
+          age: "",
           gender: "Male",
-          phone: "9999999999",
+          phone: "",
           description: "",
         },
   });
@@ -134,24 +135,24 @@ const Account = () => {
   }, [currentRole]);
 
   useEffect(() => {
-    if (details) {
+    if (details && Object.keys(details).length > 0) {
       if (isMentor) {
         form.reset({
           name: details.name || "",
-          age: details.age || 30,
+          age: details.age ?? "",
           gender: details.gender || "Male",
-          phone: details.phone || "9999999999",
-          specialization: details.specialization || "React",
-          experience: details.experience || "5+ years",
+          phone: details.phone || "",
+          specialization: details.specialization || "",
+          experience: details.experience || "",
           bio: details.bio || "",
           status: details.status || "Active",
         });
       } else {
         form.reset({
           name: details.name || "",
-          age: details.age || 22,
+          age: details.age ?? "",
           gender: details.gender || "Male",
-          phone: details.phone || "9999999999",
+          phone: details.phone || "",
           description: details.description || "",
         });
       }
@@ -424,18 +425,18 @@ const Account = () => {
                     <>
                       <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
                         <span className="text-xs font-bold text-gray-500 uppercase">Experience</span>
-                        <p className="font-bold text-[#2e7d52]">{details.experience || "5+ years"}</p>
+                        <p className="font-bold text-[#2e7d52]">{details.experience || "Not set"}</p>
                       </div>
 
                       <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1">
                         <span className="text-xs font-bold text-gray-500 uppercase">Specialization</span>
-                        <p className="font-bold text-[#4CAF7D]">{details.specialization || "Tech Mentor"}</p>
+                        <p className="font-bold text-[#4CAF7D]">{details.specialization || "Not set"}</p>
                       </div>
                     </>
                   ) : (
                     <div className="p-4 rounded-2xl bg-[#FAFBF8] border border-[#E5E7EB] space-y-1 md:col-span-2">
                       <span className="text-xs font-bold text-gray-500 uppercase">Learning Target</span>
-                      <p className="font-bold text-[#2e7d52]">{details.description || "Full Stack Engineering & Career Growth"}</p>
+                      <p className="font-bold text-[#2e7d52]">{details.description || "Not set"}</p>
                     </div>
                   )}
                 </div>
@@ -445,9 +446,18 @@ const Account = () => {
 
           {/* Session History Table */}
           <div className="sage-card rounded-3xl border border-[#E5E7EB] shadow-sm overflow-hidden p-6 space-y-4 bg-white">
-            <h3 className="text-xl font-extrabold text-[#1F2937] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#4CAF7D]" /> Session History & Bookings
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-extrabold text-[#1F2937] flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#4CAF7D]" /> Session History & Bookings
+              </h3>
+              {!isMentor && (
+                <Link to="/appointments">
+                  <Button variant="outline" size="sm" className="rounded-xl text-xs gap-1 border-[#4CAF7D]/30 text-[#2e7d52] hover:bg-[#DDF4E7]/40">
+                    Manage & Rate Sessions &rarr;
+                  </Button>
+                </Link>
+              )}
+            </div>
 
             <Table>
               <TableHeader className="bg-[#FAFBF8] border-b border-[#E5E7EB]">

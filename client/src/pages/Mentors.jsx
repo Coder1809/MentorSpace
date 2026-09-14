@@ -221,8 +221,19 @@ const Mentors = () => {
                   <div className="p-3 rounded-xl bg-[#FAFBF8] border border-[#E5E7EB] flex items-center gap-2">
                     <Star className="w-4 h-4 text-[#F59E0B] fill-[#F59E0B] shrink-0" />
                     <div>
-                      <p className="font-extrabold text-[#1F2937]">4.9 / 5.0</p>
-                      <p className="text-[10px] text-gray-500 font-semibold">Student Rating</p>
+                      {mentor.totalRatings > 0 ? (
+                        <>
+                          <p className="font-extrabold text-[#1F2937]">{mentor.averageRating} / 5.0</p>
+                          <p className="text-[10px] text-gray-500 font-semibold">
+                            {mentor.totalRatings} {mentor.totalRatings === 1 ? "Rating" : "Ratings"}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-extrabold text-gray-400 text-[11px]">No ratings yet</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">New Mentor</p>
+                        </>
+                      )}
                     </div>
                   </div>
 

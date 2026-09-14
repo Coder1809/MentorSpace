@@ -4,7 +4,6 @@ import {
   Home,
   UsersRound,
   CalendarCheck,
-  GraduationCap,
   User,
   Clock,
   Sparkles,
@@ -24,7 +23,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 
@@ -37,14 +36,13 @@ const sidebarConfig = {
   mentor: [
     { title: "Dashboard", url: "/mentor", icon: Home },
     { title: "Booking Requests", url: "/mentor/appointments", icon: CalendarCheck },
-    { title: "Sessions", url: "/mentor/appointments", icon: Clock },
+    { title: "Sessions", url: "/mentor/sessions", icon: Clock },
     { title: "Profile", url: "/account", icon: User },
   ],
   student: [
     { title: "Home", url: "/home", icon: Home },
     { title: "Mentors Directory", url: "/mentors", icon: UsersRound },
-
-    { title: "My Appointments", url: "/account", icon: CalendarCheck },
+    { title: "My Appointments", url: "/appointments", icon: CalendarCheck },
     { title: "Transactions", url: "/transactions", icon: DollarSign },
     { title: "Profile", url: "/account", icon: User },
   ],
@@ -56,7 +54,10 @@ export function AppSidebar() {
   const path = location.pathname;
 
   const role = user?.role || localStorage.getItem("role") || "student";
-  const currentMenu = role === "mentor" || path.startsWith("/mentor") ? "mentor" : "student";
+  // FIXED: Only use role to determine menu — NOT path.
+  // Previously path.startsWith("/mentor") matched "/mentors" (student page),
+  // causing students to see the mentor sidebar.
+  const currentMenu = role === "mentor" ? "mentor" : "student";
   const items = sidebarConfig[currentMenu] || sidebarConfig.student;
 
   return (
@@ -66,8 +67,8 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg" className="hover:bg-transparent">
               <Link to={currentMenu === "mentor" ? "/mentor" : "/home"} className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 rounded-xl bg-[#4CAF7D] text-white flex items-center justify-center font-bold shadow-md shadow-[#4CAF7D]/20">
-                  <GraduationCap className="h-5 w-5 text-white" />
+                <Avatar className="h-10 w-10 rounded-xl bg-[#4CAF7D] text-white flex items-center justify-center font-bold shadow-md shadow-[#4CAF7D]/20 overflow-hidden">
+                  <AvatarImage src="/favicon.svg" alt="MentorSpace" className="h-full w-full object-contain" />
                   <AvatarFallback className="rounded-xl bg-[#4CAF7D] text-white font-extrabold">
                     MS
                   </AvatarFallback>

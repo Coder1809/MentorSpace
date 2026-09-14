@@ -43,40 +43,53 @@ const registerUser = async (req, res) => {
     if (role === "mentor") {
       const skillsArray = typeof req.body.skills === "string"
         ? req.body.skills.split(",").map((s) => s.trim()).filter(Boolean)
-        : req.body.skills || ["React", "System Design"];
+        : req.body.skills || [];
 
       const languagesArray = typeof req.body.languages === "string"
         ? req.body.languages.split(",").map((l) => l.trim()).filter(Boolean)
-        : req.body.languages || ["English"];
+        : req.body.languages || [];
 
-      await mentorModel.create({
+      // Only store fields the user actually provided — never generate fake data
+      const mentorData = {
         mentorID: savedUser._id,
         name: username,
-        phone: req.body.phone || `99${Date.now().toString().slice(-8)}`,
-        gender: req.body.gender || "Male",
-        age: req.body.age || 30,
-        title: req.body.title || "Senior Software Engineer",
-        specialization: req.body.specialization || "Full Stack",
-        company: req.body.company || "Tech Company",
-        skills: skillsArray,
-        experience: req.body.experience || "3+ years",
-        bio: req.body.bio || "Experienced mentor assisting engineers with mock interviews, DSA, and career development.",
-        price: Number(req.body.price || req.body.sessionFee || 1499),
-        languages: languagesArray,
-        availability: req.body.availability || "Flexible Hours",
-        profilePhoto: req.body.profilePhoto || "",
-        linkedin: req.body.linkedin || "",
-        status: "Active",
-      });
+        specialization: req.body.specialization || "General",
+        skills: skillsArray.length > 0 ? skillsArray : [],
+        languages: languagesArray.length > 0 ? languagesArray : [],
+        profileComplete: false,
+      };
+
+      // Only set optional fields if the user actually provided them
+      if (req.body.phone) mentorData.phone = req.body.phone;
+      if (req.body.gender) mentorData.gender = req.body.gender;
+      if (req.body.age) mentorData.age = Number(req.body.age);
+      if (req.body.title) mentorData.title = req.body.title;
+      if (req.body.company) mentorData.company = req.body.company;
+      if (req.body.experience) mentorData.experience = req.body.experience;
+      if (req.body.bio) mentorData.bio = req.body.bio;
+      if (req.body.price || req.body.sessionFee) mentorData.price = Number(req.body.price || req.body.sessionFee);
+      if (req.body.availability) mentorData.availability = req.body.availability;
+      if (req.body.profilePhoto) mentorData.profilePhoto = req.body.profilePhoto;
+      if (req.body.linkedin) mentorData.linkedin = req.body.linkedin;
+
+      // Check if enough fields are provided for a complete profile
+      if (req.body.title && req.body.specialization && req.body.experience && req.body.bio) {
+        mentorData.profileComplete = true;
+      }
+
+      await mentorModel.create(mentorData);
     } else {
-      await studentModel.create({
+      const studentData = {
         studentID: savedUser._id,
         name: username,
-        age: req.body.age || 22,
-        gender: req.body.gender || "Male",
-        phone: req.body.phone || `99${Date.now().toString().slice(-8)}`,
-        description: req.body.description || "Enthusiastic student seeking mentorship.",
-      });
+      };
+
+      if (req.body.age) studentData.age = Number(req.body.age);
+      if (req.body.gender) studentData.gender = req.body.gender;
+      if (req.body.phone) studentData.phone = req.body.phone;
+      if (req.body.description) studentData.description = req.body.description;
+
+      await studentModel.create(studentData);
     }
 
     return res.status(201).json({
