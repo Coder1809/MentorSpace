@@ -29,9 +29,8 @@ const CATEGORIES = [
   "DevOps",
   "UI/UX",
   "Data Structures",
-  "Competitive Programming",
-  "Cloud",
 ];
+
 
 const Mentors = () => {
   const [mentors, setMentors] = useState([]);

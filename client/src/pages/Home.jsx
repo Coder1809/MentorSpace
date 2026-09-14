@@ -157,10 +157,11 @@ const Home = () => {
               <CardContent className="p-0 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Verified Mentors</p>
-                  <h3 className="text-3xl font-extrabold text-[#1F2937] mt-1">{totalMentorsCount || 12}</h3>
+                  <h3 className="text-3xl font-extrabold text-[#1F2937] mt-1">{totalMentorsCount || 8}</h3>
                   <span className="text-xs text-[#2e7d52] font-semibold flex items-center gap-1 mt-1">
-                    <Zap className="w-3.5 h-3.5 text-[#4CAF7D]" /> Across 10 Tech Domains
+                    <Zap className="w-3.5 h-3.5 text-[#4CAF7D]" /> Across {totalMentorsCount || 8} Tech Domains
                   </span>
+
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-[#DDF4E7] border border-[#4CAF7D]/30 text-[#2e7d52] flex items-center justify-center font-bold">
                   <UsersRound className="w-6 h-6" />
