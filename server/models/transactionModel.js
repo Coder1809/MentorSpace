@@ -59,6 +59,15 @@ const transactionSchema = new mongoose.Schema(
       enum: ["success", "failed"],
       default: "success",
     },
+    refundStatus: {
+      type: String,
+      enum: ["none", "refund_initiated", "refunded"],
+      default: "none",
+    },
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { api } from "@/utils/api";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShieldCheck, Receipt } from "lucide-react";
+import { Search, ShieldCheck, Receipt, RotateCcw } from "lucide-react";
+
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -108,16 +109,31 @@ const Transactions = () => {
                     {txn.orderID || txn.orderId}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={`font-bold text-xs px-3 py-1 rounded-full ${
-                        txn.status === "success"
-                          ? "badge-mint"
-                          : "bg-red-50 text-red-600 border border-red-200"
-                      }`}
-                    >
-                      {txn.status === "success" ? "Verified" : txn.status}
-                    </Badge>
+                    <div className="flex flex-col gap-1 items-start">
+                      <Badge
+                        className={`font-bold text-xs px-3 py-1 rounded-full ${
+                          txn.status === "success"
+                            ? "badge-mint"
+                            : "bg-red-50 text-red-600 border border-red-200"
+                        }`}
+                      >
+                        {txn.status === "success" ? "Verified" : txn.status}
+                      </Badge>
+                      {txn.refundStatus === "refund_initiated" && (
+                        <Badge className="bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <RotateCcw className="w-3 h-3 text-amber-600" />
+                          Refund Initiated
+                        </Badge>
+                      )}
+                      {txn.refundStatus === "refunded" && (
+                        <Badge className="bg-blue-50 text-blue-700 border border-blue-200 font-bold text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <RotateCcw className="w-3 h-3 text-blue-600" />
+                          Refunded
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
+
                 </TableRow>
               ))
             )}

@@ -3,6 +3,8 @@ import { validationResult } from "express-validator";
 import studentModel from "../models/studentModel.js";
 import mentorModel from "../models/mentorModel.js";
 import authModel from "../models/authModel.js";
+import transactionModel from "../models/transactionModel.js";
+import notificationModel from "../models/notificationModel.js";
 import mongoose from "mongoose";
 
 const createAppointment = async (req, res) => {
@@ -224,17 +226,73 @@ const updateAppointment = async (req, res) => {
       });
     }
 
+    let updateFields = { status: newStatus };
+
+    if (newStatus === "Rejected" || newStatus === "Cancelled") {
+      // 1. Locate student user ID (auth user ID) for notifications
+      const studentDoc = await studentModel.findById(currentAppointment.studentID);
+      const studentUserId = studentDoc ? studentDoc.studentID : null;
+
+      // 2. Locate mentor info for clear message
+      const mentorDoc = await mentorModel.findById(currentAppointment.mentorID);
+      const mentorName = mentorDoc?.name || "your mentor";
+
+      // 3. Look up associated transaction to get refund amount
+      let refundAmount = 1499; // Standard default session amount in INR
+      const txn = await transactionModel
+        .findOne({
+          $or: [
+            { appointment: currentAppointment._id },
+            { student: currentAppointment.studentID, mentor: currentAppointment.mentorID },
+          ],
+        })
+        .sort({ createdAt: -1 });
+
+      if (txn && txn.amount) {
+        // Razorpay amounts are stored in paise (e.g. 149900 = 1499 INR)
+        refundAmount = txn.amount > 10000 ? Math.round(txn.amount / 100) : txn.amount;
+        txn.refundStatus = "refund_initiated";
+        txn.refundAmount = refundAmount;
+        await txn.save();
+      }
+
+      const actionWord = newStatus === "Rejected" ? "declined" : "cancelled";
+      const refundMessage = `Your mentorship session with ${mentorName} was ${actionWord} by the mentor. A 100% refund of ₹${refundAmount.toLocaleString("en-IN")} has been initiated and will be credited back to your original payment method within 5-7 business days.`;
+
+      updateFields.refundStatus = "Refund Initiated";
+      updateFields.refundAmount = refundAmount;
+      updateFields.refundMessage = refundMessage;
+
+      // 4. Create notification record for the student
+      if (studentUserId) {
+        await notificationModel.create({
+          recipientID: studentUserId,
+          senderID: userId,
+          appointmentID: currentAppointment._id,
+          type: newStatus === "Rejected" ? "appointment_rejected" : "appointment_cancelled",
+          title: `Booking Request ${newStatus === "Rejected" ? "Declined" : "Cancelled"} — Refund Initiated`,
+          message: refundMessage,
+          refundAmount: refundAmount,
+          read: false,
+        });
+      }
+    }
+
     const appointment = await appointmentModel.findOneAndUpdate(
       filter,
-      { status: newStatus },
+      { $set: updateFields },
       { new: true }
     );
 
     return res.status(200).json({
       success: true,
-      message: "Mentorship session status updated",
+      message:
+        newStatus === "Rejected" || newStatus === "Cancelled"
+          ? "Mentorship session request declined and student refund initiated"
+          : "Mentorship session status updated",
       data: appointment,
     });
+
   } catch (err) {
     return res.status(500).json({
       success: false,

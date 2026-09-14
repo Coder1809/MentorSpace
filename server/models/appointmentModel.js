@@ -30,6 +30,19 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    refundStatus: {
+      type: String,
+      enum: ["None", "Refund Initiated", "Refunded"],
+      default: "None",
+    },
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+    refundMessage: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

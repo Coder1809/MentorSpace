@@ -14,6 +14,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
+  RotateCcw,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from "lucide-react";
@@ -23,6 +24,7 @@ import { format } from "date-fns";
 const Home = () => {
   const [details, setDetails] = useState(null);
   const [nextAppointment, setNextAppointment] = useState(null);
+  const [declinedAppointment, setDeclinedAppointment] = useState(null);
   const [totalMentorsCount, setTotalMentorsCount] = useState(0);
   const [totalSessionsCount, setTotalSessionsCount] = useState(0);
   const [showNoStudentAlert, setShowNoStudentAlert] = useState(false);
@@ -46,6 +48,14 @@ const Home = () => {
           (appointment) => appointment.status === "Pending" || appointment.status === "Accepted"
         );
         setNextAppointment(pendingAppointments[0]);
+
+        const declined = allAppointments.find(
+          (a) =>
+            a.status === "Rejected" ||
+            a.status === "Cancelled" ||
+            a.refundStatus === "Refund Initiated"
+        );
+        setDeclinedAppointment(declined || null);
       } catch {
         setShowNoStudentAlert(true);
       }
@@ -53,6 +63,7 @@ const Home = () => {
 
     checkUser();
   }, []);
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -79,8 +90,43 @@ const Home = () => {
 
       {details && (
         <>
+          {/* Refund Notice Banner if any session was declined/cancelled */}
+          {declinedAppointment && (
+            <div className="rounded-3xl border border-amber-200/80 bg-[#FFFBEB] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-200 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                  <RotateCcw className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-sm sm:text-base text-amber-950">
+                      Booking Update: Session{" "}
+                      {declinedAppointment.status === "Rejected" ? "Declined" : "Cancelled"}
+                    </h3>
+                    <Badge className="bg-emerald-50 text-[#2e7d52] border border-[#4CAF7D]/30 font-bold text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <RotateCcw className="w-3 h-3 text-[#4CAF7D]" />
+                      ₹{declinedAppointment.refundAmount || 1499} Refund Initiated
+                    </Badge>
+                  </div>
+                  <p className="text-xs sm:text-sm text-amber-800/90 mt-1 leading-relaxed max-w-2xl">
+                    {declinedAppointment.refundMessage ||
+                      `Your session request was declined by the mentor. A 100% refund of ₹${
+                        declinedAppointment.refundAmount || 1499
+                      } has been initiated back to your original payment method (5–7 business days).`}
+                  </p>
+                </div>
+              </div>
+              <Link to="/appointments" className="shrink-0">
+                <Button className="btn-sage font-bold rounded-xl text-xs h-9 px-4 shadow-sm">
+                  View Sessions
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {/* Hero Welcome Banner */}
           <div className="relative overflow-hidden rounded-3xl bg-[#DDF4E7] p-8 sm:p-10 border border-[#4CAF7D]/30 shadow-sm">
+
             <div className="relative z-10 space-y-4 max-w-3xl">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#4CAF7D]/30 text-[#2e7d52] text-xs font-bold tracking-wide">
                 <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />

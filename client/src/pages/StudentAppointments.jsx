@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "@/utils/api";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -10,9 +11,11 @@ import {
   Sparkles,
   Star,
   Loader2,
+  RotateCcw,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Table,
   TableBody,
@@ -110,6 +113,38 @@ const StudentAppointments = () => {
         </div>
       </div>
 
+      {/* Refund Information Banner if any appointment is declined or cancelled */}
+      {appointments.some(
+        (appt) =>
+          appt.status === "Rejected" ||
+          appt.status === "Cancelled" ||
+          appt.refundStatus === "Refund Initiated"
+      ) && (
+        <div className="rounded-3xl border border-amber-200/80 bg-[#FFFBEB] p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-200 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm sm:text-base text-amber-950">
+                Session Declined or Cancelled — 100% Refund Initiated
+              </h3>
+              <p className="text-xs sm:text-sm text-amber-800/90 mt-0.5 leading-relaxed max-w-2xl">
+                When a mentor declines your booking request, your money is never lost. A full 100% refund is automatically initiated and will be credited back to your original payment method within 5–7 business days.
+              </p>
+            </div>
+          </div>
+          <Link to="/transactions" className="shrink-0">
+            <Button
+              variant="outline"
+              className="border-amber-300 bg-white hover:bg-amber-100 text-amber-900 font-bold rounded-xl text-xs h-9 px-4 shadow-sm"
+            >
+              View Payment Receipts
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* Table */}
       <div className="sage-card rounded-3xl border border-[#E5E7EB] shadow-sm overflow-hidden bg-white p-6">
         {loading ? (
@@ -125,7 +160,7 @@ const StudentAppointments = () => {
                 <TableHead className="font-bold text-gray-700">Date</TableHead>
                 <TableHead className="font-bold text-gray-700">Slot</TableHead>
                 <TableHead className="font-bold text-gray-700">Goal / Topic</TableHead>
-                <TableHead className="font-bold text-gray-700">Status</TableHead>
+                <TableHead className="font-bold text-gray-700">Status & Refund</TableHead>
                 <TableHead className="font-bold text-gray-700">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -161,12 +196,35 @@ const StudentAppointments = () => {
                     <TableCell className="font-medium text-[#1F2937] text-sm max-w-[200px] truncate">
                       {appt.reason}
                     </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`font-bold text-xs px-3 py-1 rounded-full ${getStatusBadgeClass(appt.status)}`}
-                      >
-                        {appt.status}
-                      </Badge>
+                    <TableCell className="min-w-[220px]">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Badge
+                            className={`font-bold text-xs px-3 py-1 rounded-full ${getStatusBadgeClass(
+                              appt.status
+                            )}`}
+                          >
+                            {appt.status === "Rejected" ? "Declined" : appt.status}
+                          </Badge>
+                          {(appt.refundStatus === "Refund Initiated" ||
+                            appt.status === "Rejected" ||
+                            appt.status === "Cancelled") && (
+                            <Badge className="bg-emerald-50 text-[#2e7d52] border border-[#4CAF7D]/30 font-bold text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <RotateCcw className="w-3 h-3 text-[#4CAF7D]" />
+                              ₹{appt.refundAmount || 1499} Refund Initiated
+                            </Badge>
+                          )}
+                        </div>
+                        {appt.refundMessage ? (
+                          <p className="text-[11px] text-amber-900 bg-amber-50/80 border border-amber-200/60 rounded-lg p-2 leading-relaxed font-medium">
+                            {appt.refundMessage}
+                          </p>
+                        ) : (appt.status === "Rejected" || appt.status === "Cancelled") ? (
+                          <p className="text-[11px] text-amber-900 bg-amber-50/80 border border-amber-200/60 rounded-lg p-2 leading-relaxed font-medium">
+                            Booking was declined by mentor. A full refund of ₹{appt.refundAmount || 1499} has been initiated to your original payment method (5–7 business days).
+                          </p>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {appt.status === "Completed" && !ratedAppointments.has(appt._id) ? (
@@ -194,6 +252,7 @@ const StudentAppointments = () => {
           </Table>
         )}
       </div>
+
 
       {/* Rating Dialog */}
       {selectedAppointment && (

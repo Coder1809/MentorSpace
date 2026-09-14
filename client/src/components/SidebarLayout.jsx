@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import NotificationBell from "@/components/NotificationBell";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,8 +44,10 @@ export default function SidebarLayout() {
               <span className="w-2 h-2 rounded-full bg-[#4CAF7D] animate-pulse" />
               MentorSpace Live Platform
             </div>
+            <NotificationBell />
           </div>
         </header>
+
 
         <main className="p-6 md:p-8 max-w-7xl mx-auto w-full flex-1">
           <Outlet />

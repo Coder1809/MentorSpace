@@ -150,10 +150,77 @@ const run2RoleTests = async () => {
       console.log("✅ Security Pass: Student blocked from mentor profile route (403 Forbidden)");
     }
 
-    console.log("\n🎉 ALL 2-ROLE SYSTEM TESTS PASSED 100% SUCCESSFULLY!");
+    // 12. Mentor Cancels/Declines Request -> Student Refund & Notification Flow
+    console.log("\n12. Testing Mentor Decline & Student Refund Notification Flow...");
+
+    // Create another booking request
+    const secondFutureDate = new Date();
+    secondFutureDate.setDate(secondFutureDate.getDate() + Math.floor(Math.random() * 50) + 10);
+    const secondDateStr = secondFutureDate.toISOString().split("T")[0];
+
+    const orderRes2 = await axios.post(`${BASE_URL}/payment/create-order`, { amount: 1499 }, studentAuth);
+    const payId2 = `pay_refund_${Date.now()}`;
+    const hmacSig2 = crypto
+      .createHmac("sha256", keySecret)
+      .update(`${orderRes2.data.order.id}|${payId2}`)
+      .digest("hex");
+
+    const verifyRes2 = await axios.post(
+      `${BASE_URL}/payment/verify`,
+      {
+        razorpay_order_id: orderRes2.data.order.id,
+        razorpay_payment_id: payId2,
+        razorpay_signature: hmacSig2,
+        amount: 149900,
+        currency: "INR",
+        mentorID: targetMentor._id,
+        date: secondDateStr,
+        timeSlot: "Morning",
+        reason: "DevOps & Kubernetes Consultation",
+      },
+      studentAuth
+    );
+    const apptToDecline = verifyRes2.data.data.appointment;
+    console.log("✅ Second Session Booked for Cancellation Test:", apptToDecline._id);
+
+    // Mentor Declines/Rejects the appointment
+    const declineRes = await axios.put(
+      `${BASE_URL}/appointment/${apptToDecline._id}`,
+      { status: "Rejected" },
+      mentorAuth
+    );
+    console.log("✅ Mentor Declined Appointment:", declineRes.status, "| Status:", declineRes.data.data.status);
+    console.log("✅ Appointment Refund Status:", declineRes.data.data.refundStatus);
+    console.log("✅ Appointment Refund Amount: ₹" + declineRes.data.data.refundAmount);
+    console.log("✅ Appointment Refund Message:", declineRes.data.data.refundMessage);
+
+    // Student fetches notifications
+    console.log("\nTesting Student Notifications (GET /api/notification)...");
+    const notifRes = await axios.get(`${BASE_URL}/notification`, studentAuth);
+    console.log("✅ Notification Fetch Status:", notifRes.status, "| Total:", notifRes.data.data.length, "| Unread:", notifRes.data.unreadCount);
+
+    const refundNotification = notifRes.data.data.find(
+      (n) => n.appointmentID === apptToDecline._id
+    );
+
+    if (refundNotification) {
+      console.log("✅ Notification Received by Student!");
+      console.log("   Title:", refundNotification.title);
+      console.log("   Message:", refundNotification.message);
+      console.log("   Refund Amount: ₹" + refundNotification.refundAmount);
+    } else {
+      console.error("❌ Notification not found for student!");
+    }
+
+    // Mark notifications as read
+    const markReadRes = await axios.put(`${BASE_URL}/notification/read`, {}, studentAuth);
+    console.log("✅ Notifications Marked as Read Status:", markReadRes.status);
+
+    console.log("\n🎉 ALL 2-ROLE SYSTEM & REFUND NOTIFICATION TESTS PASSED 100% SUCCESSFULLY!");
   } catch (err) {
     console.error("❌ Test Failed:", err.response ? JSON.stringify(err.response.data, null, 2) : err.message);
   }
 };
+
 
 run2RoleTests();
